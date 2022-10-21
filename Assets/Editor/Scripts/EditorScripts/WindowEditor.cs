@@ -5,6 +5,7 @@ using UnityEditor.Experimental.GraphView;
 
 namespace DialogEditor
 {
+    using Utilities;
     public class WindowEditor : EditorWindow
     {
         private string _path = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogVariables.uss";
@@ -23,13 +24,12 @@ namespace DialogEditor
         
         private void AddStyles()
         {
-            StyleSheet styleSheet = (StyleSheet) EditorGUIUtility.Load(_path);
-            rootVisualElement.styleSheets.Add(styleSheet);
+           rootVisualElement.AddStyleSheets(_path);
         }
 
         private void AddGraphView()
         {
-            DialogGraphView graphView = new DialogGraphView();
+            DialogGraphView graphView = new DialogGraphView(this);
             graphView.StretchToParentSize();
             
             rootVisualElement.Add(graphView);

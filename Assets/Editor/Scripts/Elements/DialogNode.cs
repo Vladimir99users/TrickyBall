@@ -6,56 +6,72 @@ using UnityEngine;
 
 namespace DialogEditor.Elements
 {
+
+    using Utilities;
     public class DialogNode : Node
     {
-       public string DialogName {get;set;}
-       public List<string> Choices {get;set;}
-       public string Text {get;set;}
-       public DialogueType _typeDialog {get;set;}
+     public string DialogName {get;set;}
+     public List<string> Choices {get;set;}
+     public string Text {get;set;}
+     public DialogueType _typeDialog {get;set;}
 
-       public void Intialize(Vector2 position)
-       {
-            DialogName = "Name Node";
-            Choices = new List<string>();
-            Text = "Dialog text";
-            _typeDialog = DialogueType.None;
+          internal virtual void Intialize(Vector2 position)
+          {
+               DialogName = "Name Node";
+               Choices = new List<string>();
+               Text = "Dialog text";
+               _typeDialog  = DialogueType.None;
+               SetPosition(new Rect(position,Vector2.zero));
+               mainContainer.AddToClassList(".dialog-node_main-container");
+               extensionContainer.AddToClassList(".dialog-node_extension-container");  
 
-            SetPosition(new Rect(position,Vector2.zero));
-       }
+          }
 
-       public void Draw()
-       {
-            TextField dialogNameTextField = new TextField()
-            {
-                value = DialogName  
-            };
+          internal virtual void Draw()
+          {
 
-            titleContainer.Insert(0,dialogNameTextField);
+             DrawTextFieldDialogName();
+             DrawConnectors();
+              // connectors
+             VisualElement customDataContainer = new VisualElement();
+             customDataContainer.AddClasses(".dialog-node_custom-data-container");
 
-            Port inputPort = InstantiatePort(Orientation.Horizontal,Direction.Input,Port.Capacity.Multi,typeof(bool));
-            inputPort.portName = "DialogConnection";
 
-            inputContainer.Add(inputPort);
+             Foldout textFoldout = DialogElementUtility.CreateFoldout( "Dialog text" );
+             TextField textTextField = DialogElementUtility.CreatTextArea(Text);
 
-            VisualElement customDataContainer = new VisualElement();
+             textTextField.AddClasses(
+                  ".dialog-node_textfield",
+                  ".dialog-node_quote-textfield"
+             );
 
-            Foldout textFoldout = new Foldout()
-            {
-                text = "Dialog Text"
-            };
 
-            TextField textTextFiald = new TextField()
-            {
-                value = Text
-            };
+             textFoldout.Add(textTextField);
 
-            textFoldout.Add(textTextFiald);
+             customDataContainer.Add(textFoldout);
+             extensionContainer.Add(customDataContainer);
+             RefreshExpandedState();
+          }
 
-            customDataContainer.Add(textFoldout);
-            extensionContainer.Add(customDataContainer);
+          private void DrawTextFieldDialogName()
+          {
+             TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName);
+             // text field
+             dialogNameTextField.AddClasses(
+                  ".dialog-node_textfield",
+                  ".dialog-node_filename-textfield",
+                  ".dialog-node_textfield_hidden"
+             );
 
-            RefreshExpandedState();
-       }
-    }
+               titleContainer.Insert(0,dialogNameTextField);
+
+          }
+
+          private void DrawConnectors()
+          {
+             Port inputPort = this.CreatPort("DialogConnection", Orientation.Horizontal,Direction.Input,Port.Capacity.Multi);
+             inputContainer.Add(inputPort);
+          }   
+     }
 }
 
