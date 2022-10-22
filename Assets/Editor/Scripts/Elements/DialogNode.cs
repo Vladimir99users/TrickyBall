@@ -8,18 +8,24 @@ namespace DialogEditor.Elements
 {
 
     using Utilities;
+    using DialogEditor;
     public class DialogNode : Node
     {
      public string DialogName {get;set;}
      public List<string> Choices {get;set;}
      public string Text {get;set;}
+
+     private Color defaultBackgroundColor;
+     private DialogGraphView _graphView;
      public DialogueType _typeDialog {get;set;}
 
-          internal virtual void Intialize(Vector2 position)
+          internal virtual void Intialize(DialogGraphView dialogGraphView, Vector2 position)
           {
                DialogName = "Name Node";
                Choices = new List<string>();
                Text = "Dialog text";
+               _graphView = dialogGraphView;
+               defaultBackgroundColor = new Color(29f / 255f,29f / 255f,30f / 255f);
                _typeDialog  = DialogueType.None;
                SetPosition(new Rect(position,Vector2.zero));
                mainContainer.AddToClassList(".dialog-node_main-container");
@@ -55,7 +61,12 @@ namespace DialogEditor.Elements
 
           private void DrawTextFieldDialogName()
           {
-             TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName);
+             TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName,callback => 
+             {
+               _graphView.RemoveUngroupNode(this);
+               DialogName = callback.newValue;
+               _graphView.AddUngroupeNodes(this);
+             });
              // text field
              dialogNameTextField.AddClasses(
                   ".dialog-node_textfield",
@@ -72,6 +83,16 @@ namespace DialogEditor.Elements
              Port inputPort = this.CreatPort("DialogConnection", Orientation.Horizontal,Direction.Input,Port.Capacity.Multi);
              inputContainer.Add(inputPort);
           }   
+
+          public void SetErrorStyle(Color color)
+          {
+               mainContainer.style.backgroundColor = color;
+          }
+
+          public void ResetStyle()
+          {
+                mainContainer.style.backgroundColor = defaultBackgroundColor;
+          }
      }
 }
 

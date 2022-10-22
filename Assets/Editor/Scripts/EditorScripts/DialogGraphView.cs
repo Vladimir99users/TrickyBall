@@ -11,6 +11,7 @@ namespace DialogEditor
     using Enumerations;
     using Utilities;
     using Windows;
+    using Data.Error;
     public class DialogGraphView : GraphView
     {
         private string _pathDialogGraphSteel = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogStyle.uss";
@@ -18,12 +19,15 @@ namespace DialogEditor
         
         private DialogSearchWindow _searchWindows;
         private WindowEditor _editorWindow;
+        private SerializableDictionary<string,DialogNodeErrorData> ungroupeNodes;
         public DialogGraphView(WindowEditor editorWindow)
         {
             _editorWindow = editorWindow;
+            ungroupeNodes = new SerializableDictionary<string, DialogNodeErrorData>();
             AddGridBackground();
             AddSearchWindows();
             AddManipulators();
+            OnElementsDeleted();
 
             AddStyles();
         }
@@ -120,9 +124,76 @@ namespace DialogEditor
             Type nodeType = Type.GetType($"DialogEditor.Elements.{typeNode}Node");
 
             DialogNode node = (DialogNode) Activator.CreateInstance(nodeType);
-            node.Intialize(position);
+            node.Intialize(this,position);
             node.Draw();
+
+            AddUngroupeNodes(node);
             return node;
+        }
+
+        public void AddUngroupeNodes(DialogNode node)
+        {
+            string nodeName = node.DialogName;
+            if(!ungroupeNodes.ContainsKey(nodeName))
+            {
+                DialogNodeErrorData nodeErrorData = new DialogNodeErrorData();
+                nodeErrorData.Nodes.Add(node);
+
+                ungroupeNodes.Add(nodeName,nodeErrorData);
+                return;
+            }
+            List<DialogNode> ungroupNodesList = ungroupeNodes[nodeName].Nodes;
+            ungroupNodesList.Add(node);
+            Color errorColor = ungroupeNodes[nodeName].ErrorData.Color;
+            node.SetErrorStyle(errorColor);
+
+            if(ungroupNodesList.Count == 2)
+            {
+                ungroupNodesList[0].SetErrorStyle(errorColor);
+            }
+        }
+
+
+        public void RemoveUngroupNode(DialogNode node)
+        {
+            string nodeName = node.DialogName;
+            List<DialogNode> ungroupNodesList = ungroupeNodes[nodeName].Nodes;
+
+            ungroupNodesList.Remove(node);
+            node.ResetStyle();
+
+            if(ungroupeNodes[nodeName].Nodes.Count == 1)
+            {
+                ungroupNodesList[0].ResetStyle();
+                return;
+            }
+            if(ungroupeNodes[nodeName].Nodes.Count == 0)
+            {
+                ungroupeNodes.Remove(nodeName);
+            }
+        }
+        
+
+        private void OnElementsDeleted()
+        {
+            deleteSelection = (operationName,AskUser) =>
+            {
+                List<DialogNode> nodeToDelete = new List<DialogNode>();
+                foreach (GraphElement elemtn in selection)
+                {
+                    if(elemtn is DialogNode)
+                    {
+                        nodeToDelete.Add((DialogNode) elemtn);
+                        continue;
+                    }
+                }
+
+                foreach (var node in nodeToDelete)
+                {
+                    RemoveUngroupNode(node);
+                    RemoveElement(node);
+                }
+            };
         }
 
         internal Group CreateGroup(Vector2 position)

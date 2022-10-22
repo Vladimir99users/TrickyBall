@@ -8,9 +8,9 @@ namespace DialogEditor.Elements
     using Utilities;
     public class SingleChoiseNode : DialogNode
     {
-       internal override void Intialize(Vector2 position)
+       internal override void Intialize(DialogGraphView dialogGraphView, Vector2 position)
        {
-            base.Intialize(position);
+            base.Intialize(dialogGraphView,position);
             _typeDialog = DialogueType.SingleChoise;
 
             Choices.Add("Next dialogue");
