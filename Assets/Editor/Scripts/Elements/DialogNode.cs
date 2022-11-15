@@ -19,6 +19,8 @@ namespace DialogEditor.Elements
      private DialogGraphView _graphView;
      public DialogueType _typeDialog {get;set;}
 
+     public Group Group {get;set;}
+
           internal virtual void Intialize(DialogGraphView dialogGraphView, Vector2 position)
           {
                DialogName = "Name Node";
@@ -63,10 +65,21 @@ namespace DialogEditor.Elements
           {
              TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName,callback => 
              {
-               _graphView.RemoveUngroupNode(this);
+               if(Group == null)
+               {
+                    _graphView.RemoveUngroupeNode(this);
+                    DialogName = callback.newValue;
+                    _graphView.AddUngroupeNodes(this);
+                    return;
+               }
+               Group currentGroup = Group;
+               _graphView.RemoveGroupedNode(this,Group);
                DialogName = callback.newValue;
-               _graphView.AddUngroupeNodes(this);
+               _graphView.AddGroupedNode(this,currentGroup);
+              
              });
+
+            
              // text field
              dialogNameTextField.AddClasses(
                   ".dialog-node_textfield",
@@ -91,7 +104,7 @@ namespace DialogEditor.Elements
 
           public void ResetStyle()
           {
-                mainContainer.style.backgroundColor = defaultBackgroundColor;
+               mainContainer.style.backgroundColor = defaultBackgroundColor;
           }
      }
 }

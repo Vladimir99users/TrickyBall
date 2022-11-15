@@ -19,15 +19,22 @@ namespace DialogEditor
         
         private DialogSearchWindow _searchWindows;
         private WindowEditor _editorWindow;
-        private SerializableDictionary<string,DialogNodeErrorData> ungroupeNodes;
+        private SerializableDictionary<string,DialogNodeErrorData> _ungroupeNodes;
+        private SerializableDictionary<Group, SerializableDictionary<string,DialogNodeErrorData>> _groupedNodes;
+
         public DialogGraphView(WindowEditor editorWindow)
         {
             _editorWindow = editorWindow;
-            ungroupeNodes = new SerializableDictionary<string, DialogNodeErrorData>();
+            _ungroupeNodes = new SerializableDictionary<string, DialogNodeErrorData>();
+            _groupedNodes = new SerializableDictionary<Group, SerializableDictionary<string, DialogNodeErrorData>>();
+
             AddGridBackground();
             AddSearchWindows();
             AddManipulators();
+
             OnElementsDeleted();
+            OnGroupElementsAdded();
+            OnGroupElementsRemoved();
 
             AddStyles();
         }
@@ -134,17 +141,17 @@ namespace DialogEditor
         public void AddUngroupeNodes(DialogNode node)
         {
             string nodeName = node.DialogName;
-            if(!ungroupeNodes.ContainsKey(nodeName))
+            if(!_ungroupeNodes.ContainsKey(nodeName))
             {
                 DialogNodeErrorData nodeErrorData = new DialogNodeErrorData();
                 nodeErrorData.Nodes.Add(node);
 
-                ungroupeNodes.Add(nodeName,nodeErrorData);
+                _ungroupeNodes.Add(nodeName,nodeErrorData);
                 return;
             }
-            List<DialogNode> ungroupNodesList = ungroupeNodes[nodeName].Nodes;
+            List<DialogNode> ungroupNodesList = _ungroupeNodes[nodeName].Nodes;
             ungroupNodesList.Add(node);
-            Color errorColor = ungroupeNodes[nodeName].ErrorData.Color;
+            Color errorColor = _ungroupeNodes[nodeName].ErrorData.Color;
             node.SetErrorStyle(errorColor);
 
             if(ungroupNodesList.Count == 2)
@@ -154,26 +161,24 @@ namespace DialogEditor
         }
 
 
-        public void RemoveUngroupNode(DialogNode node)
+        public void RemoveUngroupeNode(DialogNode node)
         {
             string nodeName = node.DialogName;
-            List<DialogNode> ungroupNodesList = ungroupeNodes[nodeName].Nodes;
+            List<DialogNode> ungroupNodesList = _ungroupeNodes[nodeName].Nodes;
 
             ungroupNodesList.Remove(node);
             node.ResetStyle();
 
-            if(ungroupeNodes[nodeName].Nodes.Count == 1)
+            if(_ungroupeNodes[nodeName].Nodes.Count == 1)
             {
                 ungroupNodesList[0].ResetStyle();
                 return;
             }
-            if(ungroupeNodes[nodeName].Nodes.Count == 0)
+            if(_ungroupeNodes[nodeName].Nodes.Count == 0)
             {
-                ungroupeNodes.Remove(nodeName);
+                _ungroupeNodes.Remove(nodeName);
             }
         }
-        
-
         private void OnElementsDeleted()
         {
             deleteSelection = (operationName,AskUser) =>
@@ -190,22 +195,109 @@ namespace DialogEditor
 
                 foreach (var node in nodeToDelete)
                 {
-                    RemoveUngroupNode(node);
+                    if(node.Group != null)
+                    {
+                        node.Group.RemoveElement(node);
+                    }
+                    RemoveUngroupeNode(node);
                     RemoveElement(node);
                 }
             };
         }
 
-        internal Group CreateGroup(Vector2 position)
+        private void OnGroupElementsAdded()
         {
-            DialogGroup _group = new DialogGroup()
+            elementsAddedToGroup = (group,elements) =>
             {
-                title = "Group Name"
+                foreach (var element in elements)
+                {
+                    if(!(element is DialogNode))
+                    {
+                        continue;
+                    }
+
+                    DialogNode node = (DialogNode) element;
+                    RemoveUngroupeNode(node);
+                    AddGroupedNode(node,group);
+                }
             };
-            _group.Intialize(position);
-            return _group;
         }
 
+        private void OnGroupElementsRemoved()
+        {
+            elementsRemovedFromGroup = (group,elements) =>
+            {
+                foreach (var element in elements)
+                {
+                    if(!(element is DialogNode))
+                    {
+                        continue;
+                    }
+
+                    DialogNode node = (DialogNode) element;
+                    RemoveGroupedNode(node,group);
+                    AddUngroupeNodes(node);
+                }
+            };
+        }
+
+        public void RemoveGroupedNode(DialogNode node, Group group)
+        {
+            string nodeName = node.DialogName;
+            node.Group = null;
+            List<DialogNode> groupedNodesList = _groupedNodes[group][nodeName].Nodes;
+
+            groupedNodesList.Remove(node);
+            node.ResetStyle();
+
+            if(groupedNodesList.Count == 1)
+            {
+                groupedNodesList[0].ResetStyle();
+                return;
+            }
+            if(groupedNodesList.Count == 0)
+            {
+                _groupedNodes[group].Remove(nodeName);
+                if(_groupedNodes[group].Count == 0)
+                {
+                    _groupedNodes.Remove(group);
+                }
+            }
+        }
+
+        public void AddGroupedNode(DialogNode node, Group group)
+        {
+            string nodeName = node.DialogName;
+            node.Group = group;
+            if(_groupedNodes.ContainsKey(group) == false)
+            {
+                _groupedNodes.Add(group,new SerializableDictionary<string,DialogNodeErrorData>());
+            }
+
+            if(_groupedNodes[group].ContainsKey(nodeName) == false)
+            {
+                DialogNodeErrorData nodeErrorData = new DialogNodeErrorData();
+                nodeErrorData.Nodes.Add(node);
+                _groupedNodes[group].Add(nodeName,nodeErrorData);
+                return;
+            }
+
+            List<DialogNode> groupedNodesList = _groupedNodes[group][nodeName].Nodes;
+            groupedNodesList.Add(node);
+            Color errorColor = _groupedNodes[group][nodeName].ErrorData.Color;
+            node.SetErrorStyle(errorColor);
+
+            if(groupedNodesList.Count == 2)
+            {
+                groupedNodesList[0].SetErrorStyle(errorColor);
+            }
+        }
+        internal Group CreateGroup(Vector2 position)
+        {
+            GroupElements _group = new GroupElements("Empty group", position);
+
+            return _group;
+        }
         internal DialogEditor.Condition.ConditionNode CreateCondition(Vector2 position)
         {
             DialogEditor.Condition.ConditionNode condition = new DialogEditor.Condition.ConditionNode()

@@ -5,8 +5,6 @@ namespace DialogEditor.Data.Error
     public class DialogErrorData
     {
         public Color Color {get;set;}
-
-
         public DialogErrorData()
         {
             GenerateRandomColor();
