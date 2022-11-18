@@ -22,11 +22,40 @@ namespace DialogEditor
         private SerializableDictionary<string,DialogNodeErrorData> _ungroupeNodes;
         private SerializableDictionary<Group, SerializableDictionary<string,DialogNodeErrorData>> _groupedNodes;
 
+        private SerializableDictionary<string,DialogGroupErrorData> _groups;
+       
+       
+        private int repeatedNameAmount;
+        public int RepeatedNamesAmount
+        {
+            get
+            {
+                return repeatedNameAmount;
+            }
+
+            set
+            {
+                repeatedNameAmount =  value;
+                if(repeatedNameAmount == 0)
+                {
+                    _editorWindow.EnableSaving();
+                }
+
+                if(repeatedNameAmount == 1)
+                {
+                    _editorWindow.DisableSaving();
+                }
+            }
+        }
+       
+       
         public DialogGraphView(WindowEditor editorWindow)
         {
             _editorWindow = editorWindow;
             _ungroupeNodes = new SerializableDictionary<string, DialogNodeErrorData>();
             _groupedNodes = new SerializableDictionary<Group, SerializableDictionary<string, DialogNodeErrorData>>();
+            _groups = new SerializableDictionary<string, DialogGroupErrorData>();
+
 
             AddGridBackground();
             AddSearchWindows();
@@ -35,6 +64,7 @@ namespace DialogEditor
             OnElementsDeleted();
             OnGroupElementsAdded();
             OnGroupElementsRemoved();
+            OnGroupRenamed();
 
             AddStyles();
         }
@@ -103,7 +133,7 @@ namespace DialogEditor
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator
             (
-                menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => AddElement(CreateGroup(GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
+                menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => CreateGroup(GetLocalMousePosition(actionEvent.eventInfo.localMousePosition)))
             );
             return contextualMenuManipulator;
         }
@@ -156,6 +186,8 @@ namespace DialogEditor
 
             if(ungroupNodesList.Count == 2)
             {
+                ++RepeatedNamesAmount;
+
                 ungroupNodesList[0].SetErrorStyle(errorColor);
             }
         }
@@ -171,6 +203,8 @@ namespace DialogEditor
 
             if(_ungroupeNodes[nodeName].Nodes.Count == 1)
             {
+                --RepeatedNamesAmount;
+
                 ungroupNodesList[0].ResetStyle();
                 return;
             }
@@ -183,16 +217,61 @@ namespace DialogEditor
         {
             deleteSelection = (operationName,AskUser) =>
             {
+                Type groupType = typeof(GroupElements);
+                Type edgeType = typeof(Edge);
+                List<GroupElements> groupsToDelete = new List<GroupElements>();
+                List<Edge> edgesToDelete = new List<Edge>();
                 List<DialogNode> nodeToDelete = new List<DialogNode>();
-                foreach (GraphElement elemtn in selection)
+
+                foreach (GraphElement element in selection)
                 {
-                    if(elemtn is DialogNode)
+                    if(element is DialogNode)
                     {
-                        nodeToDelete.Add((DialogNode) elemtn);
+                        nodeToDelete.Add((DialogNode) element);
                         continue;
                     }
+
+                    if(element.GetType() == edgeType)
+                    {
+                        Edge edge = (Edge)element;
+                        edgesToDelete.Add(edge);
+
+                        continue;
+                    }
+
+                    if(element.GetType() != groupType)
+                    {
+                        continue;
+                    }
+
+                    GroupElements currentGroup = (GroupElements)element;
+              
+                    groupsToDelete.Add(currentGroup);
                 }
 
+                //callback на удаление группы
+                foreach (var group in groupsToDelete)
+                {
+                    List<DialogNode> groupNodes = new List<DialogNode>();
+                    foreach (var groupElement in group.containedElements)
+                    {
+                        if((groupElement is DialogNode) == false)
+                        {
+                            continue;
+                        }
+
+                        DialogNode groupNode = (DialogNode)groupElement;
+                        groupNodes.Add(groupNode);
+                    }
+                    group.RemoveElements(groupNodes);
+
+                    RemoveGroupe(group);
+                    
+                    RemoveElement(group);
+                }
+
+                DeleteElements(edgesToDelete);
+                // callback на удаление нода
                 foreach (var node in nodeToDelete)
                 {
                     if(node.Group != null)
@@ -200,11 +279,35 @@ namespace DialogEditor
                         node.Group.RemoveElement(node);
                     }
                     RemoveUngroupeNode(node);
+                    node.DisconnectAllPorts();
                     RemoveElement(node);
                 }
             };
         }
 
+        private void RemoveGroupe(GroupElements group)
+        {
+            string oldGroupName = group.OldTitel;
+
+            List<GroupElements> groupsList =  _groups[oldGroupName].Groups;
+            groupsList.Remove(group);
+            group.ResetStyle();
+
+            if(groupsList.Count == 1)
+            {
+                --RepeatedNamesAmount;
+                groupsList[0].ResetStyle();
+                return;
+            }
+            if(groupsList.Count == 0)
+            {
+                _groupedNodes[group].Remove(oldGroupName);
+                if(_groupedNodes[group].Count == 0)
+                {
+                    _groupedNodes.Remove(group);
+                }
+            }
+        }
         private void OnGroupElementsAdded()
         {
             elementsAddedToGroup = (group,elements) =>
@@ -215,14 +318,13 @@ namespace DialogEditor
                     {
                         continue;
                     }
-
+                    GroupElements myGroup = (GroupElements)group;
                     DialogNode node = (DialogNode) element;
                     RemoveUngroupeNode(node);
-                    AddGroupedNode(node,group);
+                    AddGroupedNode(node,myGroup);
                 }
             };
         }
-
         private void OnGroupElementsRemoved()
         {
             elementsRemovedFromGroup = (group,elements) =>
@@ -233,15 +335,26 @@ namespace DialogEditor
                     {
                         continue;
                     }
-
+                    GroupElements myGroup = (GroupElements)group;
                     DialogNode node = (DialogNode) element;
-                    RemoveGroupedNode(node,group);
+                    RemoveGroupedNode(node,myGroup);
                     AddUngroupeNodes(node);
                 }
             };
         }
 
-        public void RemoveGroupedNode(DialogNode node, Group group)
+        private void OnGroupRenamed()
+        {
+            groupTitleChanged = (group, newTitel ) =>
+            {
+                GroupElements dialogGroup = (GroupElements) group;
+                RemoveGroupe(dialogGroup);
+
+                dialogGroup.OldTitel = newTitel;
+                AddGroup(dialogGroup);
+            };
+        }
+        public void RemoveGroupedNode(DialogNode node, GroupElements group)
         {
             string nodeName = node.DialogName;
             node.Group = null;
@@ -252,6 +365,7 @@ namespace DialogEditor
 
             if(groupedNodesList.Count == 1)
             {
+                --RepeatedNamesAmount;
                 groupedNodesList[0].ResetStyle();
                 return;
             }
@@ -265,7 +379,7 @@ namespace DialogEditor
             }
         }
 
-        public void AddGroupedNode(DialogNode node, Group group)
+        public void AddGroupedNode(DialogNode node, GroupElements group)
         {
             string nodeName = node.DialogName;
             node.Group = group;
@@ -289,14 +403,51 @@ namespace DialogEditor
 
             if(groupedNodesList.Count == 2)
             {
+                ++RepeatedNamesAmount;
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
         internal Group CreateGroup(Vector2 position)
         {
-            GroupElements _group = new GroupElements("Empty group", position);
+            GroupElements group = new GroupElements("Empty group", position);
+            AddGroup(group);
+            AddElement(group);
 
-            return _group;
+            foreach (var selectedElement in selection)
+            {
+                if((selectedElement is DialogNode) == false)
+                {
+                    continue;
+                }
+
+                DialogNode node = (DialogNode) selectedElement;
+                group.AddElement(node);
+            }
+
+            return group;
+        }
+
+        private void AddGroup(GroupElements group)
+        {
+            string groupName = group.title;
+
+            if(_groups.ContainsKey(groupName) == false)
+            {
+                DialogGroupErrorData groupErrorData = new DialogGroupErrorData();
+                groupErrorData.Groups.Add(group);
+                _groups.Add(groupName,groupErrorData);
+            }
+
+            List<GroupElements> groupsList = _groups[groupName].Groups;
+            groupsList.Add(group);
+
+            Color errorColor = _groups[groupName].ErrorData.Color;
+            group.SetErrorStyle(errorColor);
+
+            if(groupsList.Count == 2)
+            {
+                groupsList[0].SetErrorStyle(errorColor);
+            }
         }
         internal DialogEditor.Condition.ConditionNode CreateCondition(Vector2 position)
         {

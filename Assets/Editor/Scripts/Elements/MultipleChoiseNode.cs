@@ -12,8 +12,7 @@ namespace DialogEditor.Elements
        {
             base.Intialize(dialogGraphView, position);
             _typeDialog = DialogueType.MultipleChoise;
-
-            Choices.Add("New Choise");
+            Choices.Add("new Choise");
        }
 
         internal override void Draw()
@@ -46,7 +45,9 @@ namespace DialogEditor.Elements
         {
             
                 Port choicePort = this.CreatPort("Choice",Orientation.Horizontal,Direction.Output,Port.Capacity.Single);
-                Button deleteChoiceButton = DialogElementUtility.CreateButton("Delete");
+                Button deleteChoiceButton = DialogElementUtility.CreateButton("Delete", () =>{
+                    
+                });
 
                 deleteChoiceButton.AddToClassList(".dialog-node__button");
 

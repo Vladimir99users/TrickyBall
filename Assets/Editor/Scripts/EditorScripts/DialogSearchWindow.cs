@@ -64,8 +64,7 @@ namespace DialogEditor.Windows
                 }
                 case Group _:
                 {
-                    Group group = (Group)_grahpView.CreateGroup(localMousePosition);
-                    _grahpView.AddElement(group);
+                    _grahpView.CreateGroup(localMousePosition);
                     return true;
                 }
                 default:

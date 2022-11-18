@@ -7,15 +7,17 @@ namespace DialogEditor.Elements
 {
     public class GroupElements : Group
     {
-        private Color defaultBoarderColor;
-        private float defaultBorderWidth;
+        public string OldTitel;
+        private Color _defaultBoarderColor;
+        private float _defaultBorderWidth;
 
         public GroupElements(string groupTitel,Vector2 position)
         {
             title = groupTitel;
+            OldTitel = groupTitel;
             SetPosition(new Rect(position, Vector2.zero));
-            defaultBoarderColor = contentContainer.style.borderBottomColor.value;
-            defaultBorderWidth = contentContainer.style.borderBottomWidth.value;
+            _defaultBoarderColor = contentContainer.style.borderBottomColor.value;
+            _defaultBorderWidth = contentContainer.style.borderBottomWidth.value;
         }
 
         public void SetErrorStyle(Color color)
@@ -24,10 +26,10 @@ namespace DialogEditor.Elements
             contentContainer.style.borderBottomWidth = 2f;
         }
 
-        public void ResetSyle()
+        public void ResetStyle()
         {
-            contentContainer.style.borderBottomColor = defaultBoarderColor;
-            contentContainer.style.borderBottomWidth = defaultBorderWidth;
+            contentContainer.style.borderBottomColor = _defaultBoarderColor;
+            contentContainer.style.borderBottomWidth = _defaultBorderWidth;
         }
     }
 }

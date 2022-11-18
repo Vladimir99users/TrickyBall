@@ -30,11 +30,12 @@ namespace DialogEditor.Utilities
 
             return foldout;
         }
-        public static TextField CreatTextField(string value = null, EventCallback<ChangeEvent<string>> onValueChanged = null)
+        public static TextField CreatTextField(string value = null,string label = null, EventCallback<ChangeEvent<string>> onValueChanged = null)
         {
             TextField textField = new TextField()
             {
-                value = value
+                value = value,
+                label = label
             };
 
             if(onValueChanged != null)
@@ -44,9 +45,9 @@ namespace DialogEditor.Utilities
             return textField;
         }
 
-        public static TextField CreatTextArea(string value = null, EventCallback<ChangeEvent<string>> onValueChanged = null)
+        public static TextField CreatTextArea(string value = null,string label = null, EventCallback<ChangeEvent<string>> onValueChanged = null)
         {
-            TextField textArea = CreatTextField(value,onValueChanged);
+            TextField textArea = CreatTextField(value,label,onValueChanged);
             textArea.multiline = true;
 
             return textArea;

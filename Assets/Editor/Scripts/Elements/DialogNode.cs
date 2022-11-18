@@ -19,7 +19,7 @@ namespace DialogEditor.Elements
      private DialogGraphView _graphView;
      public DialogueType _typeDialog {get;set;}
 
-     public Group Group {get;set;}
+     public GroupElements Group {get;set;}
 
           internal virtual void Intialize(DialogGraphView dialogGraphView, Vector2 position)
           {
@@ -33,6 +33,17 @@ namespace DialogEditor.Elements
                mainContainer.AddToClassList(".dialog-node_main-container");
                extensionContainer.AddToClassList(".dialog-node_extension-container");  
 
+          }
+
+
+          // Добавление в контекстное меню дополнительного функционала
+          // Сначала название действия, потом кидаем делегат на функцию
+          public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+          {
+
+               evt.menu.AppendAction("Disconect Input Ports", actionEvent => DisconnectInputPorts());
+               evt.menu.AppendAction("Disconect Output Ports", actionEvent => DisconnectOutputPorts());
+               base.BuildContextualMenu(evt);
           }
 
           internal virtual void Draw()
@@ -63,7 +74,7 @@ namespace DialogEditor.Elements
 
           private void DrawTextFieldDialogName()
           {
-             TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName,callback => 
+             TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName, null,callback => 
              {
                if(Group == null)
                {
@@ -72,7 +83,7 @@ namespace DialogEditor.Elements
                     _graphView.AddUngroupeNodes(this);
                     return;
                }
-               Group currentGroup = Group;
+               GroupElements currentGroup = Group;
                _graphView.RemoveGroupedNode(this,Group);
                DialogName = callback.newValue;
                _graphView.AddGroupedNode(this,currentGroup);
@@ -97,15 +108,44 @@ namespace DialogEditor.Elements
              inputContainer.Add(inputPort);
           }   
 
-          public void SetErrorStyle(Color color)
-          {
-               mainContainer.style.backgroundColor = color;
-          }
 
-          public void ResetStyle()
+     #region Utility Methods
+
+     public void DisconnectAllPorts()
+     {
+          DisconnectInputPorts();
+          DisconnectOutputPorts();
+     }
+
+     private void DisconnectInputPorts()
+     {
+          DisconnectPorts(inputContainer);
+     }
+
+     private void DisconnectOutputPorts()
+     {
+          DisconnectPorts(outputContainer);
+     }
+     private void DisconnectPorts(VisualElement container)
+     {
+          foreach (Port port in container.Children())
           {
-               mainContainer.style.backgroundColor = defaultBackgroundColor;
+               if(port.connected == false)
+               {
+                    continue;
+               }
+            _graphView.DeleteElements(port.connections);
           }
      }
+     public void SetErrorStyle(Color color)
+     {
+           mainContainer.style.backgroundColor = color;
+     }
+     public void ResetStyle()
+     {
+           mainContainer.style.backgroundColor = defaultBackgroundColor;
+     }
+     #endregion
+    }
 }
 

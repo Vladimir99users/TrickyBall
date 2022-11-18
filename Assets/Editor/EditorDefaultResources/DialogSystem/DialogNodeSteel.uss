@@ -1,5 +1,6 @@
 /* Containers */
 
+
 .dialog-node_extension-container
 {
     background-color: var(--ds-colors-window-dark-grey-1);
@@ -14,7 +15,7 @@
 .dialog-node_custom-data-containers
 {
     background-color: var(--ds-colors-window-dark-grey-3);
-    barder-radius: var(--ds-metrics-window-pixels-4);
+    border-radius: var(--ds-metrics-window-pixels-4);
     padding: var(--ds-metrics-window-pixels-8);
 }
 
@@ -23,8 +24,8 @@
 .dialog-node_textfield > .unity-text-field_input
 {
     background-color:  var(--ds-colors-window-dark-grey-1);
-    barder-color: var(--ds-colors-window-dark-grey-6);
-    barder-radius: var(--ds-metrics-window-pixels-4);
+    border-color: var(--ds-colors-window-dark-grey-6);
+    border-radius: var(--ds-metrics-window-pixels-4);
     max-width: var(--ds-metrics-window-pixels-240);
     min-width: var(--ds-metrics-window-pixels-160);
     padding: var(--ds-metrics-window-pixels-8);
@@ -33,13 +34,13 @@
 .dialog-node_textfield_hidden > .unity-text-field_input
 {
     background-color: transparent;
-    barder-color: transparent;
+    border-color: transparent;
 }
 
 .dialog-node_textfield_hidden > .unity-text-field_input:focus
 {
     background-color: var(--ds-color-textField-background); 
-    barder-color: var(--ds-colors-window-dark-grey-6);
+    border-color: var(--ds-colors-window-dark-grey-6);
 }
 
 .dialog-node_filename-textfield > .unity-text-field_input
@@ -71,7 +72,7 @@
 .dialog-node_quote-textfield > .unity-text-field_input
 {
     background-color: var(--ds-colors-window-dark-grey-4);
-    barder-color: transparent;
+    border-color: transparent;
     border-left-color: var(--ds-colors-window-dark-grey-6);
     border-left-width: var(--ds-metrics-window-pixels-4);
     padding: var(--ds-metrics-window-pixels-16);
@@ -81,7 +82,7 @@
 .dialog-node_quote-textfield > .unity-text-field_input:focus
 {
     background-color:  var(--ds-colors-window-dark-grey-1);
-    barder-color: var(--ds-colors-window-dark-grey-6);
+    border-color: var(--ds-colors-window-dark-grey-6);
 }
 
 .dialog-node_quote-textfield > .unity-text-field_input:hover
