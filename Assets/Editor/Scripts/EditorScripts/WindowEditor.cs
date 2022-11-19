@@ -12,6 +12,7 @@ namespace DialogEditor
     public class WindowEditor : EditorWindow
     {
         private string defaultFileName = "New Dialog name";
+        private TextField _fileNameTextField;
         private Button _saveButton;
         private string _path = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogVariables.uss";
 
@@ -42,7 +43,10 @@ namespace DialogEditor
         {
             Toolbar toolBar = new Toolbar();
 
-            TextField fileNameTextField = DialogElementUtility.CreatTextField(defaultFileName, "File Name:");
+            TextField fileNameTextField = DialogElementUtility.CreatTextField(defaultFileName, "File Name:", callback => 
+            {
+                _fileNameTextField.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+            });
 
             _saveButton = DialogElementUtility.CreateButton("Save");
 

@@ -170,7 +170,7 @@ namespace DialogEditor
 
         public void AddUngroupeNodes(DialogNode node)
         {
-            string nodeName = node.DialogName;
+            string nodeName = node.DialogName.ToLower();
             if(!_ungroupeNodes.ContainsKey(nodeName))
             {
                 DialogNodeErrorData nodeErrorData = new DialogNodeErrorData();
@@ -195,7 +195,7 @@ namespace DialogEditor
 
         public void RemoveUngroupeNode(DialogNode node)
         {
-            string nodeName = node.DialogName;
+            string nodeName = node.DialogName.ToLower();
             List<DialogNode> ungroupNodesList = _ungroupeNodes[nodeName].Nodes;
 
             ungroupNodesList.Remove(node);
@@ -213,6 +213,215 @@ namespace DialogEditor
                 _ungroupeNodes.Remove(nodeName);
             }
         }
+        
+
+        private void RemoveGroupe(GroupElements group)
+        {
+            string oldGroupName = group.OldTitel.ToLower();
+
+            List<GroupElements> groupsList =  _groups[oldGroupName].Groups;
+            groupsList.Remove(group);
+            group.ResetStyle();
+
+            if(groupsList.Count == 1)
+            {
+                --RepeatedNamesAmount;
+                groupsList[0].ResetStyle();
+                return;
+            }
+            if(groupsList.Count == 0)
+            {
+                _groupedNodes[group].Remove(oldGroupName);
+                if(_groupedNodes[group].Count == 0)
+                {
+                    _groupedNodes.Remove(group);
+                }
+            }
+        }
+        private void OnGroupElementsAdded()
+        {
+            elementsAddedToGroup = (group,elements) =>
+            {
+                foreach (var element in elements)
+                {
+                    if(!(element is DialogNode))
+                    {
+                        continue;
+                    }
+                    GroupElements myGroup = (GroupElements)group;
+                    DialogNode node = (DialogNode) element;
+                    RemoveUngroupeNode(node);
+                    AddGroupedNode(node,myGroup);
+                }
+            };
+        }
+        private void OnGroupElementsRemoved()
+        {
+            elementsRemovedFromGroup = (group,elements) =>
+            {
+                foreach (var element in elements)
+                {
+                    if(!(element is DialogNode))
+                    {
+                        continue;
+                    }
+                    GroupElements myGroup = (GroupElements)group;
+                    DialogNode node = (DialogNode) element;
+                    RemoveGroupedNode(node,myGroup);
+                    AddUngroupeNodes(node);
+                }
+            };
+        }
+
+        private void OnGroupRenamed()
+        {
+            groupTitleChanged = (group, newTitel ) =>
+            {
+                GroupElements dialogGroup = (GroupElements) group;
+                
+                dialogGroup.title = newTitel.RemoveWhitespaces().RemoveSpecialCharacters();
+                
+                RemoveGroupe(dialogGroup);
+
+                dialogGroup.OldTitel = dialogGroup.title;
+                AddGroup(dialogGroup);
+            };
+        }
+        public void RemoveGroupedNode(DialogNode node, GroupElements group)
+        {
+            string nodeName = node.DialogName.ToLower();
+            node.Group = null;
+            List<DialogNode> groupedNodesList = _groupedNodes[group][nodeName].Nodes;
+
+            groupedNodesList.Remove(node);
+            node.ResetStyle();
+
+            if(groupedNodesList.Count == 1)
+            {
+                --RepeatedNamesAmount;
+                groupedNodesList[0].ResetStyle();
+                return;
+            }
+            if(groupedNodesList.Count == 0)
+            {
+                _groupedNodes[group].Remove(nodeName);
+                if(_groupedNodes[group].Count == 0)
+                {
+                    _groupedNodes.Remove(group);
+                }
+            }
+        }
+
+        public void AddGroupedNode(DialogNode node, GroupElements group)
+        {
+            string nodeName = node.DialogName.ToLower();
+            node.Group = group;
+            if(_groupedNodes.ContainsKey(group) == false)
+            {
+                _groupedNodes.Add(group,new SerializableDictionary<string,DialogNodeErrorData>());
+            }
+
+            if(_groupedNodes[group].ContainsKey(nodeName) == false)
+            {
+                DialogNodeErrorData nodeErrorData = new DialogNodeErrorData();
+                nodeErrorData.Nodes.Add(node);
+                _groupedNodes[group].Add(nodeName,nodeErrorData);
+                return;
+            }
+
+            List<DialogNode> groupedNodesList = _groupedNodes[group][nodeName].Nodes;
+            groupedNodesList.Add(node);
+            Color errorColor = _groupedNodes[group][nodeName].ErrorData.Color;
+            node.SetErrorStyle(errorColor);
+
+            if(groupedNodesList.Count == 2)
+            {
+                ++RepeatedNamesAmount;
+                groupedNodesList[0].SetErrorStyle(errorColor);
+            }
+        }
+        internal Group CreateGroup(Vector2 position)
+        {
+            GroupElements group = new GroupElements("Empty group", position);
+            AddGroup(group);
+            AddElement(group);
+
+            foreach (var selectedElement in selection)
+            {
+                if((selectedElement is DialogNode) == false)
+                {
+                    continue;
+                }
+
+                DialogNode node = (DialogNode) selectedElement;
+                group.AddElement(node);
+            }
+
+            return group;
+        }
+
+        private void AddGroup(GroupElements group)
+        {
+            string groupName = group.title.ToLower();
+
+            if(_groups.ContainsKey(groupName) == false)
+            {
+                DialogGroupErrorData groupErrorData = new DialogGroupErrorData();
+                groupErrorData.Groups.Add(group);
+                _groups.Add(groupName,groupErrorData);
+            }
+
+            List<GroupElements> groupsList = _groups[groupName].Groups;
+            groupsList.Add(group);
+
+            Color errorColor = _groups[groupName].ErrorData.Color;
+            group.SetErrorStyle(errorColor);
+
+            if(groupsList.Count == 2)
+            {
+                groupsList[0].SetErrorStyle(errorColor);
+            }
+        }
+        internal DialogEditor.Condition.ConditionNode CreateCondition(Vector2 position)
+        {
+            DialogEditor.Condition.ConditionNode condition = new DialogEditor.Condition.ConditionNode()
+            {
+                title = "Single if"
+            };
+            condition.Intialize(position);
+            condition.Draw();
+            return condition;
+        }
+
+        private void AddStyles()
+        {
+            this.AddStyleSheets(
+                _pathDialogGraphSteel,
+                _pathNodeSteel
+            );
+        }
+        
+        private void AddGridBackground()
+        {
+            GridBackground gridBackGround = new GridBackground();
+            gridBackGround.StretchToParentSize();
+            Insert(0,gridBackGround);
+        }
+
+        // Метод пересчета позиции из-за зума в Graph View
+        
+        public Vector2 GetLocalMousePosition(Vector2 mousePosition, bool isSearchWindows = false)
+        {
+            Vector2 worldMousePosition = mousePosition;
+            if(isSearchWindows)
+            {
+                worldMousePosition -= _editorWindow.position.position; // Rect -> Vecotr2
+            }
+
+            Vector2 localMousePosition = contentViewContainer.WorldToLocal(worldMousePosition);
+            return localMousePosition;
+        }
+
         private void OnElementsDeleted()
         {
             deleteSelection = (operationName,AskUser) =>
@@ -283,210 +492,6 @@ namespace DialogEditor
                     RemoveElement(node);
                 }
             };
-        }
-
-        private void RemoveGroupe(GroupElements group)
-        {
-            string oldGroupName = group.OldTitel;
-
-            List<GroupElements> groupsList =  _groups[oldGroupName].Groups;
-            groupsList.Remove(group);
-            group.ResetStyle();
-
-            if(groupsList.Count == 1)
-            {
-                --RepeatedNamesAmount;
-                groupsList[0].ResetStyle();
-                return;
-            }
-            if(groupsList.Count == 0)
-            {
-                _groupedNodes[group].Remove(oldGroupName);
-                if(_groupedNodes[group].Count == 0)
-                {
-                    _groupedNodes.Remove(group);
-                }
-            }
-        }
-        private void OnGroupElementsAdded()
-        {
-            elementsAddedToGroup = (group,elements) =>
-            {
-                foreach (var element in elements)
-                {
-                    if(!(element is DialogNode))
-                    {
-                        continue;
-                    }
-                    GroupElements myGroup = (GroupElements)group;
-                    DialogNode node = (DialogNode) element;
-                    RemoveUngroupeNode(node);
-                    AddGroupedNode(node,myGroup);
-                }
-            };
-        }
-        private void OnGroupElementsRemoved()
-        {
-            elementsRemovedFromGroup = (group,elements) =>
-            {
-                foreach (var element in elements)
-                {
-                    if(!(element is DialogNode))
-                    {
-                        continue;
-                    }
-                    GroupElements myGroup = (GroupElements)group;
-                    DialogNode node = (DialogNode) element;
-                    RemoveGroupedNode(node,myGroup);
-                    AddUngroupeNodes(node);
-                }
-            };
-        }
-
-        private void OnGroupRenamed()
-        {
-            groupTitleChanged = (group, newTitel ) =>
-            {
-                GroupElements dialogGroup = (GroupElements) group;
-                RemoveGroupe(dialogGroup);
-
-                dialogGroup.OldTitel = newTitel;
-                AddGroup(dialogGroup);
-            };
-        }
-        public void RemoveGroupedNode(DialogNode node, GroupElements group)
-        {
-            string nodeName = node.DialogName;
-            node.Group = null;
-            List<DialogNode> groupedNodesList = _groupedNodes[group][nodeName].Nodes;
-
-            groupedNodesList.Remove(node);
-            node.ResetStyle();
-
-            if(groupedNodesList.Count == 1)
-            {
-                --RepeatedNamesAmount;
-                groupedNodesList[0].ResetStyle();
-                return;
-            }
-            if(groupedNodesList.Count == 0)
-            {
-                _groupedNodes[group].Remove(nodeName);
-                if(_groupedNodes[group].Count == 0)
-                {
-                    _groupedNodes.Remove(group);
-                }
-            }
-        }
-
-        public void AddGroupedNode(DialogNode node, GroupElements group)
-        {
-            string nodeName = node.DialogName;
-            node.Group = group;
-            if(_groupedNodes.ContainsKey(group) == false)
-            {
-                _groupedNodes.Add(group,new SerializableDictionary<string,DialogNodeErrorData>());
-            }
-
-            if(_groupedNodes[group].ContainsKey(nodeName) == false)
-            {
-                DialogNodeErrorData nodeErrorData = new DialogNodeErrorData();
-                nodeErrorData.Nodes.Add(node);
-                _groupedNodes[group].Add(nodeName,nodeErrorData);
-                return;
-            }
-
-            List<DialogNode> groupedNodesList = _groupedNodes[group][nodeName].Nodes;
-            groupedNodesList.Add(node);
-            Color errorColor = _groupedNodes[group][nodeName].ErrorData.Color;
-            node.SetErrorStyle(errorColor);
-
-            if(groupedNodesList.Count == 2)
-            {
-                ++RepeatedNamesAmount;
-                groupedNodesList[0].SetErrorStyle(errorColor);
-            }
-        }
-        internal Group CreateGroup(Vector2 position)
-        {
-            GroupElements group = new GroupElements("Empty group", position);
-            AddGroup(group);
-            AddElement(group);
-
-            foreach (var selectedElement in selection)
-            {
-                if((selectedElement is DialogNode) == false)
-                {
-                    continue;
-                }
-
-                DialogNode node = (DialogNode) selectedElement;
-                group.AddElement(node);
-            }
-
-            return group;
-        }
-
-        private void AddGroup(GroupElements group)
-        {
-            string groupName = group.title;
-
-            if(_groups.ContainsKey(groupName) == false)
-            {
-                DialogGroupErrorData groupErrorData = new DialogGroupErrorData();
-                groupErrorData.Groups.Add(group);
-                _groups.Add(groupName,groupErrorData);
-            }
-
-            List<GroupElements> groupsList = _groups[groupName].Groups;
-            groupsList.Add(group);
-
-            Color errorColor = _groups[groupName].ErrorData.Color;
-            group.SetErrorStyle(errorColor);
-
-            if(groupsList.Count == 2)
-            {
-                groupsList[0].SetErrorStyle(errorColor);
-            }
-        }
-        internal DialogEditor.Condition.ConditionNode CreateCondition(Vector2 position)
-        {
-            DialogEditor.Condition.ConditionNode condition = new DialogEditor.Condition.ConditionNode()
-            {
-                title = "Single if"
-            };
-            condition.Intialize(position);
-            condition.Draw();
-            return condition;
-        }
-
-        private void AddStyles()
-        {
-            this.AddStyleSheets(
-                _pathDialogGraphSteel,
-                _pathNodeSteel
-            );
-        }
-        
-        private void AddGridBackground()
-        {
-            GridBackground gridBackGround = new GridBackground();
-            gridBackGround.StretchToParentSize();
-            Insert(0,gridBackGround);
-        }
-
-        // Метод пересчета позиции из-за зума в Graph View
-        
-        public Vector2 GetLocalMousePosition(Vector2 mousePosition, bool isSearchWindows = false)
-        {
-            Vector2 worldMousePosition = mousePosition;
-            if(isSearchWindows)
-            {
-                worldMousePosition -= _editorWindow.position.position; // Rect -> Vecotr2
-            }
-
-            Vector2 localMousePosition = contentViewContainer.WorldToLocal(worldMousePosition);
-            return localMousePosition;
         }
     }
 }

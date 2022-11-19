@@ -76,16 +76,19 @@ namespace DialogEditor.Elements
           {
              TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName, null,callback => 
              {
+               TextField target = (TextField) callback.target;
+               target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+
                if(Group == null)
                {
                     _graphView.RemoveUngroupeNode(this);
-                    DialogName = callback.newValue;
+                    DialogName = target.value;
                     _graphView.AddUngroupeNodes(this);
                     return;
                }
                GroupElements currentGroup = Group;
                _graphView.RemoveGroupedNode(this,Group);
-               DialogName = callback.newValue;
+               DialogName = target.value;
                _graphView.AddGroupedNode(this,currentGroup);
               
              });
