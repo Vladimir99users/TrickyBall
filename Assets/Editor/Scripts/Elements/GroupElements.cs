@@ -7,12 +7,14 @@ namespace DialogEditor.Elements
 {
     public class GroupElements : Group
     {
-        public string OldTitel;
+        public string ID {get;set;}
+        public string OldTitel {get;set;}
         private Color _defaultBoarderColor;
         private float _defaultBorderWidth;
 
         public GroupElements(string groupTitel,Vector2 position)
         {
+            ID = System.Guid.NewGuid().ToString();
             title = groupTitel;
             OldTitel = groupTitel;
             SetPosition(new Rect(position, Vector2.zero));

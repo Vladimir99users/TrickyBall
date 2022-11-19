@@ -9,8 +9,11 @@ namespace DialogEditor.Elements
 
     using Utilities;
     using DialogEditor;
+    using System;
+
     public class DialogNode : Node
     {
+     public string ID {get;set;}
      public string DialogName {get;set;}
      public List<string> Choices {get;set;}
      public string Text {get;set;}
@@ -23,6 +26,7 @@ namespace DialogEditor.Elements
 
           internal virtual void Intialize(DialogGraphView dialogGraphView, Vector2 position)
           {
+               ID = Guid.NewGuid().ToString();
                DialogName = "Name Node";
                Choices = new List<string>();
                Text = "Dialog text";
