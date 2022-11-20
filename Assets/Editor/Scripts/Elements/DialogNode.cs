@@ -10,110 +10,93 @@ namespace DialogEditor.Elements
     using Utilities;
     using DialogEditor;
     using System;
+    using Dialog.Data.Save;
 
     public class DialogNode : Node
     {
      public string ID {get;set;}
      public string DialogName {get;set;}
-     public List<string> Choices {get;set;}
+     public List<DialogChoiseSaveData> Choices {get;set;}
      public string Text {get;set;}
 
      private Color defaultBackgroundColor;
-     private DialogGraphView _graphView;
+     protected DialogGraphView _graphView;
      public DialogueType _typeDialog {get;set;}
 
      public GroupElements Group {get;set;}
 
-          internal virtual void Intialize(DialogGraphView dialogGraphView, Vector2 position)
+     internal virtual void Intialize(DialogGraphView dialogGraphView, Vector2 position)
+     {
+          ID = Guid.NewGuid().ToString();
+          DialogName = "Name Node";
+          Choices = new List<DialogChoiseSaveData>();
+          Text = "Dialog text";
+          _graphView = dialogGraphView;
+          defaultBackgroundColor = new Color(29f / 255f,29f / 255f,30f / 255f);
+          _typeDialog  = DialogueType.None;
+          SetPosition(new Rect(position,Vector2.zero));
+          mainContainer.AddToClassList("dialog-node_main-container");
+          extensionContainer.AddToClassList("dialog-node_extension-container");  
+     }
+     // Добавление в контекстное меню дополнительного функционала
+     // Сначала название действия, потом кидаем делегат на функцию
+     public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+     {
+          evt.menu.AppendAction("Disconect Input Ports", actionEvent => DisconnectInputPorts());
+          evt.menu.AppendAction("Disconect Output Ports", actionEvent => DisconnectOutputPorts());
+          base.BuildContextualMenu(evt);
+     }
+     internal virtual void Draw()
+     {
+        DrawTextFieldDialogName();
+        DrawConnectors();
+         // connectors
+        VisualElement customDataContainer = new VisualElement();
+        customDataContainer.AddClasses("dialog-node_custom-data-container");
+        Foldout textFoldout = DialogElementUtility.CreateFoldout( "Dialog text" );
+        TextField textTextField = DialogElementUtility.CreatTextArea(Text);
+        textTextField.AddClasses(
+             ".dialog-node_textfield",
+             ".dialog-node_quote-textfield"
+        );
+        textFoldout.Add(textTextField);
+        customDataContainer.Add(textFoldout);
+        extensionContainer.Add(customDataContainer);
+        RefreshExpandedState();
+     }
+     private void DrawTextFieldDialogName()
+     {
+        TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName, null,callback => 
+        {
+          TextField target = (TextField) callback.target;
+          target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+          if(Group == null)
           {
-               ID = Guid.NewGuid().ToString();
-               DialogName = "Name Node";
-               Choices = new List<string>();
-               Text = "Dialog text";
-               _graphView = dialogGraphView;
-               defaultBackgroundColor = new Color(29f / 255f,29f / 255f,30f / 255f);
-               _typeDialog  = DialogueType.None;
-               SetPosition(new Rect(position,Vector2.zero));
-               mainContainer.AddToClassList(".dialog-node_main-container");
-               extensionContainer.AddToClassList(".dialog-node_extension-container");  
-
-          }
-
-
-          // Добавление в контекстное меню дополнительного функционала
-          // Сначала название действия, потом кидаем делегат на функцию
-          public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
-          {
-
-               evt.menu.AppendAction("Disconect Input Ports", actionEvent => DisconnectInputPorts());
-               evt.menu.AppendAction("Disconect Output Ports", actionEvent => DisconnectOutputPorts());
-               base.BuildContextualMenu(evt);
-          }
-
-          internal virtual void Draw()
-          {
-
-             DrawTextFieldDialogName();
-             DrawConnectors();
-              // connectors
-             VisualElement customDataContainer = new VisualElement();
-             customDataContainer.AddClasses(".dialog-node_custom-data-container");
-
-
-             Foldout textFoldout = DialogElementUtility.CreateFoldout( "Dialog text" );
-             TextField textTextField = DialogElementUtility.CreatTextArea(Text);
-
-             textTextField.AddClasses(
-                  ".dialog-node_textfield",
-                  ".dialog-node_quote-textfield"
-             );
-
-
-             textFoldout.Add(textTextField);
-
-             customDataContainer.Add(textFoldout);
-             extensionContainer.Add(customDataContainer);
-             RefreshExpandedState();
-          }
-
-          private void DrawTextFieldDialogName()
-          {
-             TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName, null,callback => 
-             {
-               TextField target = (TextField) callback.target;
-               target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
-
-               if(Group == null)
-               {
-                    _graphView.RemoveUngroupeNode(this);
-                    DialogName = target.value;
-                    _graphView.AddUngroupeNodes(this);
-                    return;
-               }
-               GroupElements currentGroup = Group;
-               _graphView.RemoveGroupedNode(this,Group);
+               _graphView.RemoveUngroupeNode(this);
                DialogName = target.value;
-               _graphView.AddGroupedNode(this,currentGroup);
-              
-             });
-
-            
-             // text field
-             dialogNameTextField.AddClasses(
-                  ".dialog-node_textfield",
-                  ".dialog-node_filename-textfield",
-                  ".dialog-node_textfield_hidden"
-             );
-
-               titleContainer.Insert(0,dialogNameTextField);
-
+               _graphView.AddUngroupeNodes(this);
+               return;
           }
-
-          private void DrawConnectors()
-          {
-             Port inputPort = this.CreatPort("DialogConnection", Orientation.Horizontal,Direction.Input,Port.Capacity.Multi);
-             inputContainer.Add(inputPort);
-          }   
+          GroupElements currentGroup = Group;
+          _graphView.RemoveGroupedNode(this,Group);
+          DialogName = target.value;
+          _graphView.AddGroupedNode(this,currentGroup);
+         
+        });
+       
+        // text field
+        dialogNameTextField.AddClasses(
+             "dialog-node_textfield",
+             "dialog-node_filename-textfield",
+             "dialog-node_textfield_hidden"
+        );
+          titleContainer.Insert(0,dialogNameTextField);
+     }
+     private void DrawConnectors()
+     {
+        Port inputPort = this.CreatPort("DialogConnection", Orientation.Horizontal,Direction.Input,Port.Capacity.Multi);
+        inputContainer.Add(inputPort);
+     }   
 
 
      #region Utility Methods

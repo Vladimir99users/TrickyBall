@@ -6,14 +6,18 @@ using UnityEngine;
 namespace DialogEditor.Elements
 {
     using Utilities;
+    using Dialog.Data.Save;
     public class SingleChoiseNode : DialogNode
     {
        internal override void Intialize(DialogGraphView dialogGraphView, Vector2 position)
        {
             base.Intialize(dialogGraphView,position);
             _typeDialog = DialogueType.SingleChoise;
-
-            Choices.Add("Next dialogue");
+            DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
+            {
+                Text = "Next Dialogue"
+            };
+            Choices.Add(choiceData);
        }
 
         internal override void Draw()
@@ -22,9 +26,9 @@ namespace DialogEditor.Elements
 
             foreach (var choice in Choices)
             {
-                Port choisePort = this.CreatPort(choice);
-                choisePort.portName = choice;
+                Port choisePort = this.CreatPort(choice.Text);
 
+                choisePort.userData = choice; 
                 outputContainer.Add(choisePort);
             }
 

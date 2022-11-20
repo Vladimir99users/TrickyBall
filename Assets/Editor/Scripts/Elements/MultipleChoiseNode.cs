@@ -6,13 +6,18 @@ using UnityEngine.UIElements;
 namespace DialogEditor.Elements
 {
     using Utilities;
+    using Dialog.Data.Save;
     public class MultipleChoiseNode : DialogNode
     {
        internal override void Intialize(DialogGraphView dialogGraphView, Vector2 position)
        {
             base.Intialize(dialogGraphView, position);
             _typeDialog = DialogueType.MultipleChoise;
-            Choices.Add("new Choise");
+            DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
+            {
+                Text = "New Choice"
+            };
+            Choices.Add(choiceData);
        }
 
         internal override void Draw()
@@ -31,32 +36,58 @@ namespace DialogEditor.Elements
         {
             Button addChoiceButton = DialogElementUtility.CreateButton("Add choice", () =>
             {
-                Port choicePort = CreateSingleChoice("New Choice");
-                Choices.Add("New Choise");
+                DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
+                {
+                    Text = "New Choice"
+                };
+
+                Choices.Add(choiceData);
+                
+                Port choicePort = CreateSingleChoice(choiceData);
 
                 outputContainer.Add(choicePort);
             } );
 
-            addChoiceButton.AddToClassList(".dialog-node_button");
+            addChoiceButton.AddToClassList("dialog-node_button");
             mainContainer.Insert(1,addChoiceButton);
         }
 
-        private Port CreateSingleChoice(string textChoice)
+        private Port CreateSingleChoice(object userData)
         {
             
-                Port choicePort = this.CreatPort("Choice",Orientation.Horizontal,Direction.Output,Port.Capacity.Single);
-                Button deleteChoiceButton = DialogElementUtility.CreateButton("Delete", () =>{
-                    
+                Port choicePort = this.CreatPort();
+                
+                choicePort.userData = userData;
+
+                DialogChoiseSaveData choiceData = (DialogChoiseSaveData) userData;
+
+                Button deleteChoiceButton = DialogElementUtility.CreateButton("Delete", () =>
+                {
+                    if(Choices.Count == 1)
+                    {
+                        return;
+                    }    
+
+                    if(choicePort.connected)
+                    {
+                        _graphView.DeleteElements(choicePort.connections);
+                    }
+
+                    Choices.Remove(choiceData);
+
+                    _graphView.RemoveElement(choicePort);
                 });
 
-                deleteChoiceButton.AddToClassList(".dialog-node__button");
+                deleteChoiceButton.AddToClassList("dialog-node__button");
 
-                TextField choiceTextFiled = DialogElementUtility.CreatTextField(textChoice);
+                TextField choiceTextFiled = DialogElementUtility.CreatTextField(choiceData.Text, null, callback =>{
+                    choiceData.Text = callback.newValue;
+                });
 
                 choiceTextFiled.AddClasses(
-                    ".dialog-node_textfield",
-                    ".dialog-node_choice-textfield",
-                    ".dialog-node_textfield_hidden"
+                    "dialog-node_textfield",
+                    "dialog-node_choice-textfield",
+                    "dialog-node_textfield_hidden"
                 );
 
                 choicePort.Add(choiceTextFiled);

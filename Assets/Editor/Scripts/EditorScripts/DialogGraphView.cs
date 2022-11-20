@@ -12,6 +12,7 @@ namespace DialogEditor
     using Utilities;
     using Windows;
     using Data.Error;
+    using Dialog.Data.Save;
     public class DialogGraphView : GraphView
     {
         private string _pathDialogGraphSteel = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogStyle.uss";
@@ -65,6 +66,7 @@ namespace DialogEditor
             OnGroupElementsAdded();
             OnGroupElementsRemoved();
             OnGroupRenamed();
+            OnGraphViewChanged();
 
             AddStyles();
         }
@@ -286,6 +288,43 @@ namespace DialogEditor
                 dialogGroup.OldTitel = dialogGroup.title;
                 AddGroup(dialogGroup);
             };
+        }
+
+        private void OnGraphViewChanged()
+        {
+           graphViewChanged = (changes) =>
+           {
+                if(changes.edgesToCreate != null)
+                {
+                    foreach (Edge edge in changes.edgesToCreate)
+                    {
+                        DialogNode nextNode = (DialogNode)edge.input.node;
+                        DialogChoiseSaveData choiceData = (DialogChoiseSaveData)edge.output.userData;
+
+                        choiceData.NodeID = nextNode.ID;
+                    }
+                }
+
+                if(changes.elementsToRemove != null)
+                {
+                    Type edgeType = typeof(Edge);
+
+                    foreach (GraphElement element in changes.elementsToRemove)
+                    {
+                        if(element.GetType() != edgeType)
+                        {
+                            continue;
+                        }
+
+                        Edge edge = (Edge) element;
+
+                        DialogChoiseSaveData  choiceData = (DialogChoiseSaveData) edge.output.userData;
+
+                        choiceData.NodeID = "";
+                    }
+                }
+                return changes;
+           };
         }
         public void RemoveGroupedNode(DialogNode node, GroupElements group)
         {
