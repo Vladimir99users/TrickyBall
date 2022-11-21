@@ -22,27 +22,26 @@ namespace DialogEditor
         private WindowEditor _editorWindow;
         private SerializableDictionary<string,DialogNodeErrorData> _ungroupeNodes;
         private SerializableDictionary<Group, SerializableDictionary<string,DialogNodeErrorData>> _groupedNodes;
-
         private SerializableDictionary<string,DialogGroupErrorData> _groups;
        
        
-        private int repeatedNameAmount;
-        public int RepeatedNamesAmount
+        private int nameErrorsAmount;
+        public int NameErrorsAmount
         {
             get
             {
-                return repeatedNameAmount;
+                return nameErrorsAmount;
             }
 
             set
             {
-                repeatedNameAmount =  value;
-                if(repeatedNameAmount == 0)
+                nameErrorsAmount =  value;
+                if(nameErrorsAmount == 0)
                 {
                     _editorWindow.EnableSaving();
                 }
 
-                if(repeatedNameAmount == 1)
+                if(nameErrorsAmount == 1)
                 {
                     _editorWindow.DisableSaving();
                 }
@@ -188,7 +187,7 @@ namespace DialogEditor
 
             if(ungroupNodesList.Count == 2)
             {
-                ++RepeatedNamesAmount;
+                ++NameErrorsAmount;
 
                 ungroupNodesList[0].SetErrorStyle(errorColor);
             }
@@ -205,7 +204,7 @@ namespace DialogEditor
 
             if(_ungroupeNodes[nodeName].Nodes.Count == 1)
             {
-                --RepeatedNamesAmount;
+                --NameErrorsAmount;
 
                 ungroupNodesList[0].ResetStyle();
                 return;
@@ -227,7 +226,7 @@ namespace DialogEditor
 
             if(groupsList.Count == 1)
             {
-                --RepeatedNamesAmount;
+                --NameErrorsAmount;
                 groupsList[0].ResetStyle();
                 return;
             }
@@ -282,7 +281,19 @@ namespace DialogEditor
                 GroupElements dialogGroup = (GroupElements) group;
                 
                 dialogGroup.title = newTitel.RemoveWhitespaces().RemoveSpecialCharacters();
-                
+                if(string.IsNullOrEmpty(dialogGroup.title))
+                {
+                    if(!string.IsNullOrEmpty(dialogGroup.OldTitel))
+                    {
+                       ++NameErrorsAmount;
+                    }
+                } else 
+                {
+                    if(string.IsNullOrEmpty(dialogGroup.OldTitel))
+                    {
+                        --NameErrorsAmount;
+                    }
+                }
                 RemoveGroupe(dialogGroup);
 
                 dialogGroup.OldTitel = dialogGroup.title;
@@ -337,7 +348,7 @@ namespace DialogEditor
 
             if(groupedNodesList.Count == 1)
             {
-                --RepeatedNamesAmount;
+                --NameErrorsAmount;
                 groupedNodesList[0].ResetStyle();
                 return;
             }
@@ -375,7 +386,7 @@ namespace DialogEditor
 
             if(groupedNodesList.Count == 2)
             {
-                ++RepeatedNamesAmount;
+                ++NameErrorsAmount;
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
         }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Dialog.Data.Save
 {
-    public class DialogGraphSaveDataSO
+    public class DialogGraphSaveDataSO : ScriptableObject
     {
         [field: SerializeField]public string FileName {get;set;}
         [field: SerializeField]public List<DialogGroupSaveData> Groups {get;set;}

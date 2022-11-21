@@ -3,6 +3,7 @@ using DialogEditor.Enumerations;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 using UnityEngine;
+using System.Linq;
 
 namespace DialogEditor.Elements
 {
@@ -54,7 +55,10 @@ namespace DialogEditor.Elements
         VisualElement customDataContainer = new VisualElement();
         customDataContainer.AddClasses("dialog-node_custom-data-container");
         Foldout textFoldout = DialogElementUtility.CreateFoldout( "Dialog text" );
-        TextField textTextField = DialogElementUtility.CreatTextArea(Text);
+        TextField textTextField = DialogElementUtility.CreatTextArea(Text,null, callback =>
+        {
+          Text = callback.newValue;
+        });
         textTextField.AddClasses(
              ".dialog-node_textfield",
              ".dialog-node_quote-textfield"
@@ -70,6 +74,21 @@ namespace DialogEditor.Elements
         {
           TextField target = (TextField) callback.target;
           target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+
+          if(string.IsNullOrEmpty(target.value))
+          {
+               if(!string.IsNullOrEmpty(DialogName))
+               {
+                    ++_graphView.NameErrorsAmount;
+               }
+          } else 
+          {
+               if(string.IsNullOrEmpty(DialogName))
+               {
+                    --_graphView.NameErrorsAmount;
+               }
+          }
+
           if(Group == null)
           {
                _graphView.RemoveUngroupeNode(this);
@@ -127,6 +146,12 @@ namespace DialogEditor.Elements
             _graphView.DeleteElements(port.connections);
           }
      }
+
+     public bool IsStartingNode()
+     {
+          Port inputPort = (Port) inputContainer.Children().First();
+          return !inputPort.connected;
+     }
      public void SetErrorStyle(Color color)
      {
            mainContainer.style.backgroundColor = color;
@@ -139,3 +164,4 @@ namespace DialogEditor.Elements
     }
 }
 
+ 

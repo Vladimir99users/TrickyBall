@@ -11,6 +11,7 @@ namespace DialogEditor
     using Utilities;
     public class WindowEditor : EditorWindow
     {
+        private DialogGraphView _graphView;
         private string defaultFileName = "New Dialog name";
         private TextField _fileNameTextField;
         private Button _saveButton;
@@ -34,28 +35,45 @@ namespace DialogEditor
 
         private void AddGraphView()
         {
-            DialogGraphView graphView = new DialogGraphView(this);
-            graphView.StretchToParentSize();
+            _graphView = new DialogGraphView(this);
+            _graphView.StretchToParentSize();
             
-            rootVisualElement.Add(graphView);
+            rootVisualElement.Add(_graphView);
         }
         private void AddToolBar()
         {
             Toolbar toolBar = new Toolbar();
 
-            TextField fileNameTextField = DialogElementUtility.CreatTextField(defaultFileName, "File Name:", callback => 
+            _fileNameTextField = DialogElementUtility.CreatTextField(defaultFileName, "File Name:", callback => 
             {
                 _fileNameTextField.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
             });
 
-            _saveButton = DialogElementUtility.CreateButton("Save");
+            _saveButton = DialogElementUtility.CreateButton("Save", () => SaveToolbarAction());
 
-            toolBar.Add(fileNameTextField);
+            toolBar.Add(_fileNameTextField);
             toolBar.Add(_saveButton);
 
             toolBar.AddStyleSheets(_pathToolbar);
 
             rootVisualElement.Add(toolBar);
+        }
+
+        private void SaveToolbarAction()
+        {
+
+            if(string.IsNullOrEmpty(_fileNameTextField.value))
+            {
+                EditorUtility.DisplayDialog(
+                    "Invalid file name",
+                    "Please ensure the file name you've typed in is valid",
+                    "Roger!"
+                );
+                return;
+            }
+
+            DialogueIOUtility.Initialize(_graphView, _fileNameTextField.value);
+            DialogueIOUtility.Save();
         }
 
         private void AddStyles()
