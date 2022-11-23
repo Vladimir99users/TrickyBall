@@ -472,6 +472,16 @@ namespace DialogEditor
             return localMousePosition;
         }
 
+        public void ClearGraph()
+        {
+            graphElements.ForEach(graphElements => RemoveElement(graphElements));
+            _groups.Clear();
+            _groupedNodes.Clear();
+            _ungroupeNodes.Clear();
+
+            NameErrorsAmount = 0;
+        }
+
         private void OnElementsDeleted()
         {
             deleteSelection = (operationName,AskUser) =>

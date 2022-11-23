@@ -1,15 +1,16 @@
 :root
 {
     --ds-colors-window-background-grid-1: #0C0B2D;
+    --ds-colors-window-background-grid-2: #520952;
     --ds-colors-small-grid-2: rgba(105,0,105,0.5);
     --ds-colors-large-grid-3: rgba(170,0,170,0.75); 
 
-    --ds-colors-window-dark-grey-1: #1D1D1E;
-    --ds-colors-window-dark-grey-2: #2B2D2F;
+    --ds-colors-window-dark-grey-1: #1E2645;
+    --ds-colors-window-dark-grey-2: #536EDF;
     --ds-colors-window-dark-grey-3: #212325;
-    --ds-colors-window-dark-grey-4: #232527;
-    --ds-colors-window-dark-grey-5: #252729;
-    --ds-colors-window-dark-grey-6: #27292C;
+    --ds-colors-window-dark-grey-4: #452F74;
+    --ds-colors-window-dark-grey-5: #7D50DF;
+    --ds-colors-window-dark-grey-6: #0A0D17;
 
     --ds-colors-button-background: #00F110;
     --ds-colors-button: #FDD057;

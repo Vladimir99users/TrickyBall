@@ -12,9 +12,11 @@ namespace DialogEditor
     public class WindowEditor : EditorWindow
     {
         private DialogGraphView _graphView;
-        private string defaultFileName = "New Dialog name";
-        private TextField _fileNameTextField;
+        private string _defaultFileName = "New Dialog name";
+        private static TextField _fileNameTextField;
         private Button _saveButton;
+        private Button _clearButton;
+        private Button _resetButton;
         private string _path = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogVariables.uss";
 
         //DialogVariables
@@ -44,15 +46,25 @@ namespace DialogEditor
         {
             Toolbar toolBar = new Toolbar();
 
-            _fileNameTextField = DialogElementUtility.CreatTextField(defaultFileName, "File Name:", callback => 
+            _fileNameTextField = DialogElementUtility.CreatTextField(_defaultFileName, "File Name:", callback => 
             {
                 _fileNameTextField.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
             });
 
-            _saveButton = DialogElementUtility.CreateButton("Save", () => SaveToolbarAction());
+            _saveButton =  DialogElementUtility.CreateButton("Save", () => SaveToolbarAction());
+            _clearButton = DialogElementUtility.CreateButton("Clear", ()=> Clear());
+            _resetButton = DialogElementUtility.CreateButton("Reset", ()=> ResetGraph());
+
+
+            Label labels = new Label();
+            labels.text = "|                                                                                   |";
+            
 
             toolBar.Add(_fileNameTextField);
             toolBar.Add(_saveButton);
+            toolBar.Add(labels);
+            toolBar.contentContainer.Add(_resetButton);
+            toolBar.contentContainer.Add(_clearButton);
 
             toolBar.AddStyleSheets(_pathToolbar);
 
@@ -74,6 +86,22 @@ namespace DialogEditor
 
             DialogueIOUtility.Initialize(_graphView, _fileNameTextField.value);
             DialogueIOUtility.Save();
+        }
+
+        private void Clear()
+        {
+            _graphView.ClearGraph();
+        }
+
+        private void ResetGraph()
+        {
+           Clear();
+           UpdateFileName(_defaultFileName);
+        }
+
+        public static void UpdateFileName(string newFileName)
+        {
+            _fileNameTextField.value = newFileName;
         }
 
         private void AddStyles()

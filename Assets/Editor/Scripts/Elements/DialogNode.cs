@@ -60,8 +60,8 @@ namespace DialogEditor.Elements
           Text = callback.newValue;
         });
         textTextField.AddClasses(
-             ".dialog-node_textfield",
-             ".dialog-node_quote-textfield"
+             "dialog-node_textfield",
+             "dialog-node_quote-textfield"
         );
         textFoldout.Add(textTextField);
         customDataContainer.Add(textFoldout);
