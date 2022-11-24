@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using UnityEditor;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 
 namespace DialogEditor.Utilities
 {
@@ -11,6 +12,7 @@ namespace DialogEditor.Utilities
     using Dialog.Data.Save;
     using Dialog.ScriptableObjects;
     using Elements;
+
     public static class DialogueIOUtility
     { 
         private static DialogGraphView _graphView;
@@ -22,6 +24,11 @@ namespace DialogEditor.Utilities
         private static Dictionary<string, DialogGroupSO> _createdDialogueGroups;
         private static Dictionary<string, DialogSO> _createdDialogues;
 
+
+        private static Dictionary<string,GroupElements> _loadedGroups;
+        private static Dictionary<string,DialogNode> _loadedNodes;
+
+        #region Start Methods
         public static void Initialize(DialogGraphView currentGraph,string graphName)
         {
             _graphView = currentGraph;
@@ -33,6 +40,9 @@ namespace DialogEditor.Utilities
 
             _createdDialogueGroups = new Dictionary<string, DialogGroupSO>();
             _createdDialogues = new Dictionary<string, DialogSO>();
+
+            _loadedGroups = new Dictionary<string, GroupElements>();
+            _loadedNodes = new Dictionary<string, DialogNode>();
         }
         
         private static void CreateStaticFolders()
@@ -65,6 +75,103 @@ namespace DialogEditor.Utilities
                 }
             });
         }
+
+        #endregion
+
+
+        #region Load_Methods
+        public static void Load()
+        {
+            DialogGraphSaveDataSO graphData = LoadAsset<DialogGraphSaveDataSO>("Assets/Editor/Scripts/DialogueSystem/Graphs", _graphFileName);
+        
+            if(graphData == null)
+            {
+                EditorUtility.DisplayDialog(
+                    "Couldn't load is not found!",
+                    "The file at the following path could not be found: \n\n"+
+                    $"Assets/Editor/Scripts/DialogueSystem/Graphs/{_graphFileName} \n\n"+
+                    "Make sure you choice the right file and it's placed at the folder mentioned above.",
+                    "Thanks!"
+                );
+                return;
+            }
+
+            WindowEditor.UpdateFileName(graphData.FileName);
+            LoadGroups(graphData.Groups);
+            LoadNodes(graphData.Nodes);
+            LoadNodeConnections();
+        }
+
+        private static void LoadGroups(List<DialogGroupSaveData> groups)
+        {
+           foreach (DialogGroupSaveData groupData in groups)
+           {
+                GroupElements group = (GroupElements)_graphView.CreateGroup(groupData.Name, groupData.position);
+          
+                group.ID = groupData.ID;
+
+
+                _loadedGroups.Add(group.ID,group);
+           }
+        }
+
+        private static void LoadNodes(List<DialogNodeSaveData> nodes)
+        {
+           foreach (DialogNodeSaveData nodeData in nodes)
+           {
+
+                List<DialogChoiseSaveData> choices = CloneNodeChoices(nodeData.Choices);
+                DialogNode node = (DialogNode)_graphView.CreateNode(nodeData.Name,nodeData.Type, nodeData.position,false);
+
+                node.ID = nodeData.ID;
+                node.Choices = choices;
+                node.Text = nodeData.Text;
+
+                node.Draw();
+
+                _graphView.AddElement(node);
+
+                _loadedNodes.Add(node.ID,node);
+                if(string.IsNullOrEmpty(nodeData.GroupID))
+                {
+                    continue;
+                }
+
+                GroupElements group = _loadedGroups[nodeData.GroupID];
+                node.Group = group;
+
+                group.AddElement(node);
+
+           }
+        }
+        private static void LoadNodeConnections()
+        {
+            foreach (KeyValuePair<string, DialogNode> loadNode in _loadedNodes)
+            {
+                foreach (Port choicePort in loadNode.Value.outputContainer.Children())
+                {
+                    DialogChoiseSaveData choiceData = (DialogChoiseSaveData)choicePort.userData;
+
+                    if(string.IsNullOrEmpty(choiceData.NodeID))
+                    {
+                        continue;
+                    }
+
+                    DialogNode nextNode = _loadedNodes[choiceData.NodeID];
+
+                    Port nextNodeInputPort = (Port)nextNode.inputContainer.Children().First();
+
+                    Edge edge = choicePort.ConnectTo(nextNodeInputPort);
+
+
+                    _graphView.AddElement(edge);
+
+                    loadNode.Value.RefreshPorts();
+                }
+            }
+        }
+        #endregion
+
 
         #region Save_Methods
         public static void Save()
@@ -116,18 +223,8 @@ namespace DialogEditor.Utilities
         }
 
         private static void SaveNodeToGraph(DialogNode node, DialogGraphSaveDataSO graphData)
-        {  
-            List<DialogChoiseSaveData> choices = new List<DialogChoiseSaveData>();
-
-            foreach (DialogChoiseSaveData choice in node.Choices)
-            {
-                DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
-                {
-                    Text = choice.Text,
-                    NodeID = choice.NodeID
-                };
-                choices.Add(choiceData);
-            }
+        {
+            List<DialogChoiseSaveData> choices = CloneNodeChoices(node.Choices);
 
             DialogNodeSaveData nodeData = new DialogNodeSaveData()
             {
@@ -142,6 +239,7 @@ namespace DialogEditor.Utilities
 
             graphData.Nodes.Add(nodeData);
         }
+
 
         private static void SaveNodeToScriptableObject(DialogNode node, DialogContainerSO dialogContainerSO)
         {
@@ -301,18 +399,23 @@ namespace DialogEditor.Utilities
         private static T CreateAsset<T>(string path,string assetName) where T: ScriptableObject
         {
             string fullPath = $"{path}/{assetName}.asset";
+            T asset = LoadAsset<T>(path, assetName);
 
-            T asset  = AssetDatabase.LoadAssetAtPath<T>(fullPath);
-
-            if(asset == null)
+            if (asset == null)
             {
                 asset = ScriptableObject.CreateInstance<T>();
-                AssetDatabase.CreateAsset(asset,fullPath);
+                AssetDatabase.CreateAsset(asset, fullPath);
             }
-            
+
 
 
             return asset;
+        }
+
+        private static T LoadAsset<T>(string path, string assetName) where T : ScriptableObject
+        {
+            string fullPath = $"{path}/{assetName}.asset";
+            return AssetDatabase.LoadAssetAtPath<T>(fullPath);
         }
 
         private static void CreateFolder(string path, string folderName)
@@ -358,6 +461,24 @@ namespace DialogEditor.Utilities
         private static void RemoveAsset(string path, string assetName)
         {
             AssetDatabase.DeleteAsset($"{path}/{assetName}.asset");
+        }
+
+        
+        private static List<DialogChoiseSaveData> CloneNodeChoices(List<DialogChoiseSaveData> nodeChoices)
+        {
+            List<DialogChoiseSaveData> choices = new List<DialogChoiseSaveData>();
+
+            foreach (DialogChoiseSaveData choice in nodeChoices)
+            {
+                DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
+                {
+                    Text = choice.Text,
+                    NodeID = choice.NodeID
+                };
+                choices.Add(choiceData);
+            }
+
+            return choices;
         }
 
 

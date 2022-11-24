@@ -26,10 +26,10 @@ namespace DialogEditor.Elements
 
      public GroupElements Group {get;set;}
 
-     internal virtual void Intialize(DialogGraphView dialogGraphView, Vector2 position)
+     internal virtual void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
      {
           ID = Guid.NewGuid().ToString();
-          DialogName = "Name Node";
+          DialogName = name;
           Choices = new List<DialogChoiseSaveData>();
           Text = "Dialog text";
           _graphView = dialogGraphView;

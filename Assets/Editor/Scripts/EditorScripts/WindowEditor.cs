@@ -4,10 +4,10 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using UnityEditor.Experimental.GraphView;
 using System;
+using System.IO;
 
 namespace DialogEditor
 {
-    
     using Utilities;
     public class WindowEditor : EditorWindow
     {
@@ -17,6 +17,7 @@ namespace DialogEditor
         private Button _saveButton;
         private Button _clearButton;
         private Button _resetButton;
+        private Button _loadButton;
         private string _path = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogVariables.uss";
 
         //DialogVariables
@@ -54,7 +55,7 @@ namespace DialogEditor
             _saveButton =  DialogElementUtility.CreateButton("Save", () => SaveToolbarAction());
             _clearButton = DialogElementUtility.CreateButton("Clear", ()=> Clear());
             _resetButton = DialogElementUtility.CreateButton("Reset", ()=> ResetGraph());
-
+            _loadButton = DialogElementUtility.CreateButton("Load", ()=> LoadGraph());
 
             Label labels = new Label();
             labels.text = "|                                                                                   |";
@@ -62,6 +63,7 @@ namespace DialogEditor
 
             toolBar.Add(_fileNameTextField);
             toolBar.Add(_saveButton);
+            toolBar.Add(_loadButton);
             toolBar.Add(labels);
             toolBar.contentContainer.Add(_resetButton);
             toolBar.contentContainer.Add(_clearButton);
@@ -102,6 +104,18 @@ namespace DialogEditor
         public static void UpdateFileName(string newFileName)
         {
             _fileNameTextField.value = newFileName;
+        }
+
+        private void LoadGraph()
+        {
+            string path = EditorUtility.OpenFilePanel("Dialogue Graphs", "Assets/Editor/Scripts/DialogueSystem/Graphs", "asset");
+            if(string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+            Clear();
+            DialogueIOUtility.Initialize(_graphView,Path.GetFileNameWithoutExtension(path));
+            DialogueIOUtility.Load();
         }
 
         private void AddStyles()

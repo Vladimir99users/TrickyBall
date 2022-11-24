@@ -9,9 +9,9 @@ namespace DialogEditor.Elements
     using Dialog.Data.Save;
     public class SingleChoiseNode : DialogNode
     {
-       internal override void Intialize(DialogGraphView dialogGraphView, Vector2 position)
+       internal override void Intialize(string nodeName,DialogGraphView dialogGraphView, Vector2 position)
        {
-            base.Intialize(dialogGraphView,position);
+            base.Intialize(nodeName,dialogGraphView,position);
             _typeDialog = DialogueType.SingleChoise;
             DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
             {

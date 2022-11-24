@@ -52,19 +52,19 @@ namespace DialogEditor.Windows
             {
                 case DialogueType.SingleChoise:
                 {
-                    SingleChoiseNode singleNode = (SingleChoiseNode) _grahpView.CreateNode(DialogueType.SingleChoise, localMousePosition);
+                    SingleChoiseNode singleNode = (SingleChoiseNode) _grahpView.CreateNode("New Single Node",DialogueType.SingleChoise, localMousePosition);
                     _grahpView.AddElement(singleNode);
                     return true;
                 }
                 case DialogueType.MultipleChoise:
                 {
-                    MultipleChoiseNode  multipleNode = (MultipleChoiseNode) _grahpView.CreateNode(DialogueType.MultipleChoise, localMousePosition);
+                    MultipleChoiseNode  multipleNode = (MultipleChoiseNode) _grahpView.CreateNode("New Multi Node",DialogueType.MultipleChoise, localMousePosition);
                     _grahpView.AddElement(multipleNode);
                     return true;
                 }
                 case Group _:
                 {
-                    _grahpView.CreateGroup(localMousePosition);
+                    _grahpView.CreateGroup("New group",localMousePosition);
                     return true;
                 }
                 default:

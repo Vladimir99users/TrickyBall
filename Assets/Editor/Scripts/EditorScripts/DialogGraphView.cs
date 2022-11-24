@@ -134,7 +134,7 @@ namespace DialogEditor
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator
             (
-                menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => CreateGroup(GetLocalMousePosition(actionEvent.eventInfo.localMousePosition)))
+                menuEvent => menuEvent.menu.AppendAction("Add Group", actionEvent => CreateGroup("New Group",GetLocalMousePosition(actionEvent.eventInfo.localMousePosition)))
             );
             return contextualMenuManipulator;
         }
@@ -143,7 +143,7 @@ namespace DialogEditor
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator
             (
-                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode(typeNode,GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode("New Node",typeNode,GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
             );
             return contextualMenuManipulator;
         }
@@ -157,13 +157,17 @@ namespace DialogEditor
             return contextualMenuManipulator;
         }
 
-        internal DialogNode CreateNode(DialogueType typeNode,Vector2 position)
+        internal DialogNode CreateNode(string nodeName, DialogueType typeNode,Vector2 position, bool shouldDraw = true)
         {
             Type nodeType = Type.GetType($"DialogEditor.Elements.{typeNode}Node");
 
             DialogNode node = (DialogNode) Activator.CreateInstance(nodeType);
-            node.Intialize(this,position);
-            node.Draw();
+            node.Intialize(nodeName,this,position);
+
+            if(shouldDraw)
+            {
+                node.Draw();
+            }
 
             AddUngroupeNodes(node);
             return node;
@@ -390,9 +394,9 @@ namespace DialogEditor
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
-        internal Group CreateGroup(Vector2 position)
+        internal Group CreateGroup(string name, Vector2 position)
         {
-            GroupElements group = new GroupElements("Empty group", position);
+            GroupElements group = new GroupElements(name, position);
             AddGroup(group);
             AddElement(group);
 
