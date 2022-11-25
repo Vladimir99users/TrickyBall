@@ -18,6 +18,8 @@ namespace DialogEditor
         private Button _clearButton;
         private Button _resetButton;
         private Button _loadButton;
+
+        private Button _miniMapButton;
         private string _path = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogVariables.uss";
 
         //DialogVariables
@@ -46,6 +48,7 @@ namespace DialogEditor
         private void AddToolBar()
         {
             Toolbar toolBar = new Toolbar();
+         
 
             _fileNameTextField = DialogElementUtility.CreatTextField(_defaultFileName, "File Name:", callback => 
             {
@@ -56,6 +59,7 @@ namespace DialogEditor
             _clearButton = DialogElementUtility.CreateButton("Clear", ()=> Clear());
             _resetButton = DialogElementUtility.CreateButton("Reset", ()=> ResetGraph());
             _loadButton = DialogElementUtility.CreateButton("Load", ()=> LoadGraph());
+            _miniMapButton = DialogElementUtility.CreateButton("Open mini map", ()=> ToggleMiniMap());
 
             Label labels = new Label();
             labels.text = "|                                                                                   |";
@@ -65,6 +69,9 @@ namespace DialogEditor
             toolBar.Add(_saveButton);
             toolBar.Add(_loadButton);
             toolBar.Add(labels);
+            
+            
+            toolBar.contentContainer.Add(_miniMapButton);
             toolBar.contentContainer.Add(_resetButton);
             toolBar.contentContainer.Add(_clearButton);
 
@@ -130,6 +137,12 @@ namespace DialogEditor
         public void DisableSaving()
         {
             _saveButton.SetEnabled(false);
+        }
+
+        private void ToggleMiniMap()
+        {
+            _graphView.ToogleMiniMap();
+            _miniMapButton.ToggleInClassList("dialog-toolbar_button_selected");
         }
 
     }

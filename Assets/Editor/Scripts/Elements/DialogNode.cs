@@ -24,6 +24,7 @@ namespace DialogEditor.Elements
      protected DialogGraphView _graphView;
      public DialogueType _typeDialog {get;set;}
 
+
      public GroupElements Group {get;set;}
 
      internal virtual void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)

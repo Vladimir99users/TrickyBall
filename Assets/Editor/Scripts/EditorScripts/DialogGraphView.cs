@@ -18,6 +18,8 @@ namespace DialogEditor
         private string _pathDialogGraphSteel = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogStyle.uss";
         private string _pathNodeSteel = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogNodeSteel.uss";
         
+
+        private MiniMap _miniMap;
         private DialogSearchWindow _searchWindows;
         private WindowEditor _editorWindow;
         private SerializableDictionary<string,DialogNodeErrorData> _ungroupeNodes;
@@ -59,6 +61,7 @@ namespace DialogEditor
 
             AddGridBackground();
             AddSearchWindows();
+            AddMiniMapWindows();
             AddManipulators();
 
             OnElementsDeleted();
@@ -68,6 +71,7 @@ namespace DialogEditor
             OnGraphViewChanged();
 
             AddStyles();
+            AddMiniMapStyles();
         }
  
         private void AddSearchWindows()
@@ -486,6 +490,38 @@ namespace DialogEditor
             NameErrorsAmount = 0;
         }
 
+        private void AddMiniMapWindows()
+        {
+            _miniMap = new MiniMap()
+            {
+                anchored = true, // перенос миникарты, теперь она кликабельна для переноса
+
+            };
+
+            _miniMap.SetPosition(new Rect(15,50,200,180));
+
+            Add(_miniMap);
+        }
+
+        private void AddMiniMapStyles()
+        {
+            StyleColor backgroundColor = new StyleColor(new Color32(29,29,30,255));
+            StyleColor borderColor = new StyleColor(new Color32(51,51,51,255));
+
+            _miniMap.style.backgroundColor = backgroundColor;
+
+            _miniMap.style.borderTopColor = borderColor;
+            _miniMap.style.borderRightColor = borderColor;
+            _miniMap.style.borderBottomColor = borderColor;
+            _miniMap.style.borderLeftColor = borderColor;
+
+             _miniMap.visible = false;
+        }
+
+        public void ToogleMiniMap()
+        {
+            _miniMap.visible = !_miniMap.visible;
+        }
         private void OnElementsDeleted()
         {
             deleteSelection = (operationName,AskUser) =>

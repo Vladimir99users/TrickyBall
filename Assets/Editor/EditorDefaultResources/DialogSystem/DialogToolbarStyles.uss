@@ -56,3 +56,8 @@ TextField:focus > .unity-text-field__label
 .unity-text-field__input:focus{
     color: var(--ds-colors-window-yellow);
 }
+
+.dialog-toolbar_button_selected
+{
+    color: var(--ds-colors-window-yellow);
+}
