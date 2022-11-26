@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Dialog.Data.Save
@@ -9,5 +7,6 @@ namespace Dialog.Data.Save
     {
         [field: SerializeField] public string Text {get;set;}
         [field: SerializeField] public string NodeID {get;set;}
+        [field: SerializeField] public DialogConditionSaveData Condition {get;set;}
     }
 }

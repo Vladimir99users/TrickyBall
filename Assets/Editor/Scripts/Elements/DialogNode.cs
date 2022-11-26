@@ -110,13 +110,17 @@ namespace DialogEditor.Elements
              "dialog-node_filename-textfield",
              "dialog-node_textfield_hidden"
         );
-          titleContainer.Insert(0,dialogNameTextField);
+        titleContainer.Insert(0,dialogNameTextField);
      }
      private void DrawConnectors()
      {
         Port inputPort = this.CreatPort("DialogConnection", Orientation.Horizontal,Direction.Input,Port.Capacity.Multi);
         inputContainer.Add(inputPort);
      }   
+     protected virtual VisualElement CreateCondition(string name = "",string count = "")
+     {
+          return this.ConditionPort(name,count);
+     }
 
 
      #region Utility Methods

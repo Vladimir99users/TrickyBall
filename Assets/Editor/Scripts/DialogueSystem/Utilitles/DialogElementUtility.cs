@@ -62,6 +62,19 @@ namespace DialogEditor.Utilities
             port.portName = portName;
             return port;
         }
+
+        public static VisualElement ConditionPort(this DialogNode node,string condition = "None",string countText = "count")
+        {
+            VisualElement element = new VisualElement();
+
+            TextField textNameArea = CreatTextField(condition,"Name");
+            TextField textCountArea = CreatTextField(countText,"count");
+
+            element.Add(textNameArea);
+            element.Add(textCountArea);
+
+            return element;
+        }
     }
 }
 
