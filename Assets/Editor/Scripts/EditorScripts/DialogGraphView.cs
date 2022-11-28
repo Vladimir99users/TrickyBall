@@ -131,7 +131,7 @@ namespace DialogEditor
             this.AddManipulator(CreateNodeContextMenu("Single Node", DialogueType.SingleChoise));
             this.AddManipulator(CreateNodeContextMenu("Multi Node", DialogueType.MultipleChoise));
             this.AddManipulator(CreateGroupContextMenu());
-            this.AddManipulator(CreateConditionContextMenu());
+            this.AddManipulator(CreateConditionContextMenu("Condition", DialogueType.Condition));
         }
 
         private IManipulator CreateGroupContextMenu()
@@ -152,16 +152,16 @@ namespace DialogEditor
             return contextualMenuManipulator;
         }
 
-        private IManipulator CreateConditionContextMenu()
+        private IManipulator CreateConditionContextMenu(string actionTitle, DialogueType typeNode)
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator
             (
-                menuEvent => menuEvent.menu.AppendAction("Condtion", actionEvent => AddElement(CreateCondition(GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode("Condition", typeNode,GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
             );
             return contextualMenuManipulator;
         }
 
-        internal DialogNode CreateNode(string nodeName, DialogueType typeNode,Vector2 position, bool shouldDraw = true)
+        internal Node CreateNode(string nodeName, DialogueType typeNode,Vector2 position, bool shouldDraw = true)
         {
             Type nodeType = Type.GetType($"DialogEditor.Elements.{typeNode}Node");
 
@@ -440,16 +440,7 @@ namespace DialogEditor
                 groupsList[0].SetErrorStyle(errorColor);
             }
         }
-        internal DialogEditor.Condition.ConditionNode CreateCondition(Vector2 position)
-        {
-            DialogEditor.Condition.ConditionNode condition = new DialogEditor.Condition.ConditionNode()
-            {
-                title = "Single if"
-            };
-            condition.Intialize(position);
-            condition.Draw();
-            return condition;
-        }
+
 
         private void AddStyles()
         {

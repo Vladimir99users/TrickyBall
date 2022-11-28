@@ -11,6 +11,7 @@
     --ds-colors-window-dark-grey-4: #452F74;
     --ds-colors-window-dark-grey-5: #7D50DF;
     --ds-colors-window-dark-grey-6: #0A0D17;
+    --ds-colors-window-green-1: #4C8985;
 
     --ds-colors-button-background: #00F110;
     --ds-colors-button: #FDD057;

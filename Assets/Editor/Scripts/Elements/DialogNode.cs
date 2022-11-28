@@ -19,13 +19,11 @@ namespace DialogEditor.Elements
      public string DialogName {get;set;}
      public List<DialogChoiseSaveData> Choices {get;set;}
      public string Text {get;set;}
-
-     private Color defaultBackgroundColor;
-     protected DialogGraphView _graphView;
      public DialogueType _typeDialog {get;set;}
-
-
      public GroupElements Group {get;set;}
+
+     protected Color defaultBackgroundColor;
+     protected DialogGraphView _graphView;
 
      internal virtual void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
      {

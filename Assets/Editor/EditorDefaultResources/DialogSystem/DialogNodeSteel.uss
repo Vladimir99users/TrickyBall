@@ -12,6 +12,11 @@
     background-color:  var(--ds-colors-window-dark-grey-1);
 }
 
+.dialog-node_condition-container
+{
+    background-color: var(--ds-colors-window-green-1)
+}
+
 .dialog-node_custom-data-containers
 {
     background-color: var(--ds-colors-window-dark-grey-3);

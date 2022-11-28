@@ -1,3 +1,4 @@
+using System.Linq;
 public static class TextUtility
 {
     public static bool IsWhitespace(this char character)
@@ -88,4 +89,9 @@ public static class TextUtility
 
 		return new string(textCharacters, 0, currentWhitespacelessTextLength);
 	}
+
+    public static string DeleteAllCharactersExceptNumbers(this string text)
+    {
+        return new string(text.Where(t => char.IsDigit(t)).ToArray());
+    }
 }
