@@ -17,6 +17,7 @@ namespace DialogEditor
     {
         private string _pathDialogGraphSteel = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogStyle.uss";
         private string _pathNodeSteel = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogNodeSteel.uss";
+        private string _pathBranchStyle = $"Assets/Editor/EditorDefaultResources/DialogSystem/DialogueBranchNodeStyle.uss";
         
 
         private MiniMap _miniMap;
@@ -174,6 +175,8 @@ namespace DialogEditor
             }
 
             AddUngroupeNodes(node);
+
+
             return node;
         }
 
@@ -446,7 +449,8 @@ namespace DialogEditor
         {
             this.AddStyleSheets(
                 _pathDialogGraphSteel,
-                _pathNodeSteel
+                _pathNodeSteel,
+                _pathBranchStyle
             );
         }
         

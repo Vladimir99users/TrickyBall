@@ -1,0 +1,11 @@
+.Branch_box-container
+{
+    flex-direction: row;
+}
+
+.Branch_box-objectField
+{
+    height: 20px;
+    width: 125px;
+    margin: auto;
+}

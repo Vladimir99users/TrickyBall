@@ -12,6 +12,7 @@ namespace DialogEditor.Elements
     using DialogEditor;
     using System;
     using Dialog.Data.Save;
+    using Dialog.ScriptableObjects;
 
     public class DialogNode : Node
     {
@@ -21,7 +22,6 @@ namespace DialogEditor.Elements
      public string Text {get;set;}
      public DialogueType _typeDialog {get;set;}
      public GroupElements Group {get;set;}
-
      protected Color defaultBackgroundColor;
      protected DialogGraphView _graphView;
 

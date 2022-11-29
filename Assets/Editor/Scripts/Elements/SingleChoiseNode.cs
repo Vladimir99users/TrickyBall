@@ -2,13 +2,17 @@ using UnityEditor.Experimental.GraphView;
 using DialogEditor.Enumerations;
 using UnityEngine;
 
+using Dialog.Data.Save;
+
 
 namespace DialogEditor.Elements
 {
     using Utilities;
-    using Dialog.Data.Save;
+
+
     public class SingleChoiseNode : DialogNode
     {
+        
        internal override void Intialize(string nodeName,DialogGraphView dialogGraphView, Vector2 position)
        {
             base.Intialize(nodeName,dialogGraphView,position);
@@ -30,6 +34,7 @@ namespace DialogEditor.Elements
 
                 choisePort.userData = choice; 
                 outputContainer.Add(choisePort);
+
             }
 
             RefreshExpandedState();

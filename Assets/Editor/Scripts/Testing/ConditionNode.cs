@@ -1,5 +1,5 @@
 using UnityEditor.Experimental.GraphView;
-using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 using UnityEngine;
 using Dialog.Data.Save;
@@ -9,11 +9,14 @@ namespace DialogEditor.Elements
 {
     using Utilities;
     using Enumerations;
+    using Dialog.ScriptableObjects;
 
     public class ConditionNode : DialogNode
     {   
         public string ConditionNameItem {get;set;}
         public string ConditionCount {get;set;}
+        private ObjectField _objectField;
+        private DialogueItemDataSO _itemData;
 
         internal override void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
         {
@@ -22,6 +25,7 @@ namespace DialogEditor.Elements
             ConditionNameItem = "Name item";
             ConditionCount = "Count item";
             _typeDialog = DialogueType.Condition;
+       
             defaultBackgroundColor = new Color(76f/255, 137f/255, 133/255f);
             DialogChoiseSaveData choiceDataTrue = new DialogChoiseSaveData()
             {
@@ -43,66 +47,36 @@ namespace DialogEditor.Elements
             DrawConnectors();
             DrawTitel();
               // connectors
+
+
             VisualElement customDataContainer = new VisualElement();
 
             Foldout textFoldout = DialogElementUtility.CreateFoldout( "Condition settings" );
 
-            TextField nameField = DialogElementUtility.CreatTextField(
-                ConditionNameItem,
-                null,
-                callback =>
-                {
-                    TextField target = (TextField) callback.target;
-                    target.value = callback.newValue;
+            _objectField = new ObjectField()
+            {
+                objectType = typeof(DialogueItemDataSO),
+                allowSceneObjects = false,
+                value = _itemData
+            };
+           
+           _objectField.RegisterValueChangedCallback(callback =>
+           {
+                _itemData = _objectField.value as DialogueItemDataSO;
+                Debug.Log(_itemData.Data.Text);
+           });
+           _objectField.SetValueWithoutNotify(_itemData);
+           _objectField.FindAncestorUserData();
+           
 
-                    if(Group == null)
-                    {
-                        _graphView.RemoveUngroupeNode(this);
-                        DialogName = target.value;
-                        _graphView.AddUngroupeNodes(this);
-                        return;
-                    }
+          _objectField.AddClasses("Branch_box-objectField");
 
-                    GroupElements currentGroup = Group;
-                    _graphView.RemoveGroupedNode(this,Group);
-                    ConditionNameItem = target.value;
-                    DialogName = target.value;
-            
-                    _graphView.AddGroupedNode(this,currentGroup);
-                    
-                }
-            );
-
-            TextField countField = DialogElementUtility.CreatTextField(
-                ConditionCount,
-                null,
-                callback =>
-                {
-                    TextField target = (TextField) callback.target;
-                    target.value = callback.newValue.DeleteAllCharactersExceptNumbers();
-                    
-                    if(Group == null)
-                    {
-                        _graphView.RemoveUngroupeNode(this);
-                        DialogName = target.value;
-                        _graphView.AddUngroupeNodes(this);
-                        return;
-                    }
-
-                    GroupElements currentGroup = Group;
-                    _graphView.RemoveGroupedNode(this,Group);
-                    ConditionCount = target.value;
-            
-                    _graphView.AddGroupedNode(this,currentGroup);
-                    
-                }
-            );
+           Box boxContainer = new Box(); 
+           boxContainer.AddToClassList("Branch_box-container");
+           boxContainer.Add(_objectField);
+           boxContainer.Add(textFoldout);
 
 
-            textFoldout.Insert(0,nameField);
-            textFoldout.Insert(1,countField);
-
-            
             Port portTrue = this.CreatPort("True");
             portTrue.userData = Choices[0];
             Port portFalse = this.CreatPort("False");
@@ -113,7 +87,7 @@ namespace DialogEditor.Elements
             outputContainer.Add(portFalse);
             
 
-            customDataContainer.Add(textFoldout);
+            customDataContainer.Add(boxContainer);
             extensionContainer.Add(customDataContainer);
             RefreshExpandedState();
         }
