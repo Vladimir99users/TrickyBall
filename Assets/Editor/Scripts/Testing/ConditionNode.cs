@@ -13,20 +13,18 @@ namespace DialogEditor.Elements
 
     public class ConditionNode : DialogNode
     {   
-        public string ConditionNameItem {get;set;}
-        public string ConditionCount {get;set;}
+
         private ObjectField _objectField;
+        private EnumField _enumField;
         private DialogueItemDataSO _itemData;
+        private OperationName _operation;
 
         internal override void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
         {
             base.Intialize(name,dialogGraphView,position);
-          
-            ConditionNameItem = "Name item";
-            ConditionCount = "Count item";
+
             _typeDialog = DialogueType.Condition;
        
-            defaultBackgroundColor = new Color(76f/255, 137f/255, 133/255f);
             DialogChoiseSaveData choiceDataTrue = new DialogChoiseSaveData()
             {
                 Text = "True"
@@ -38,7 +36,7 @@ namespace DialogEditor.Elements
             Choices.Add(choiceDataTrue);
             Choices.Add(choiceDataFalse);
 
-            mainContainer.AddClasses("dialog-node_condition-container");
+            mainContainer.AddClasses("Branch_Node-size");
         }
 
         internal override void Draw()
@@ -47,11 +45,6 @@ namespace DialogEditor.Elements
             DrawConnectors();
             DrawTitel();
               // connectors
-
-
-            VisualElement customDataContainer = new VisualElement();
-
-            Foldout textFoldout = DialogElementUtility.CreateFoldout( "Condition settings" );
 
             _objectField = new ObjectField()
             {
@@ -67,15 +60,26 @@ namespace DialogEditor.Elements
            });
            _objectField.SetValueWithoutNotify(_itemData);
            _objectField.FindAncestorUserData();
+    
+          _objectField.AddClasses("Branch_box-objectField");
+
+
+           _enumField = new EnumField(OperationName.Equals);
+           _enumField.value = _operation;
+           _enumField.SetValueWithoutNotify(_operation);
+
+           _enumField.RegisterValueChangedCallback(callback =>
+           {
+                _operation = (OperationName)_enumField.value;
+                Debug.Log(_operation);
+           });
            
 
-          _objectField.AddClasses("Branch_box-objectField");
 
            Box boxContainer = new Box(); 
            boxContainer.AddToClassList("Branch_box-container");
            boxContainer.Add(_objectField);
-           boxContainer.Add(textFoldout);
-
+           boxContainer.Add(_enumField);
 
             Port portTrue = this.CreatPort("True");
             portTrue.userData = Choices[0];
@@ -86,9 +90,7 @@ namespace DialogEditor.Elements
             outputContainer.Add(portTrue);
             outputContainer.Add(portFalse);
             
-
-            customDataContainer.Add(boxContainer);
-            extensionContainer.Add(customDataContainer);
+            extensionContainer.Add(boxContainer);
             RefreshExpandedState();
         }
 
@@ -134,6 +136,9 @@ namespace DialogEditor.Elements
             );
 
             titleContainer.Insert(0,dialogNameTextField);
+            Button button = new Button();
+            button.text = "Add condition";
+            titleButtonContainer.Add(button);
         }
 
         private void DrawConnectors()
@@ -142,6 +147,15 @@ namespace DialogEditor.Elements
           inputContainer.Add(port);
         }   
 
+    }
+
+    public enum OperationName
+    {
+        Equals,
+        Addition,
+        Subtraction,
+        More,
+        Less
     }
 }
 

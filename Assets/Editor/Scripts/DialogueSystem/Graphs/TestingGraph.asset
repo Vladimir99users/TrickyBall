@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fb2dc1288aad3a498e66b41032bd346, type: 3}
+  m_Name: TestingGraph
+  m_EditorClassIdentifier: 
+  <FileName>k__BackingField: Testing
+  <Groups>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <ID>k__BackingField: d983f289-b976-4699-9610-e5fbe8a7c7e3
+    <Name>k__BackingField: New Node
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 0189b420-b9d4-4ddf-9b9a-cfa3919b27d8
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 1
+    position: {x: 350.4, y: 153.59999}
+  - <ID>k__BackingField: 0189b420-b9d4-4ddf-9b9a-cfa3919b27d8
+    <Name>k__BackingField: Condition
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: True
+      <NodeID>k__BackingField: ed2b7d70-f5ea-4feb-91f4-ea4bce31a2f5
+    - <Text>k__BackingField: False
+      <NodeID>k__BackingField: dcd42025-58ec-4b72-881b-d466fd6fbbde
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 3
+    position: {x: 631.2, y: 153.59999}
+  - <ID>k__BackingField: ed2b7d70-f5ea-4feb-91f4-ea4bce31a2f5
+    <Name>k__BackingField: "\u0439\u0446"
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 04f03b42-0297-48b2-a63d-47de002e9129
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 1
+    position: {x: 983.2, y: 28}
+  - <ID>k__BackingField: dcd42025-58ec-4b72-881b-d466fd6fbbde
+    <Name>k__BackingField: "\u0444\u044B\u0432"
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 1
+    position: {x: 968.8, y: 239.2}
+  - <ID>k__BackingField: c8870dbf-506a-4cec-b94d-35270526d223
+    <Name>k__BackingField: asd
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 1
+    position: {x: 1680, y: 75.2}
+  - <ID>k__BackingField: 04f03b42-0297-48b2-a63d-47de002e9129
+    <Name>k__BackingField: zxcb
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: c8870dbf-506a-4cec-b94d-35270526d223
+    - <Text>k__BackingField: New Choice
+      <NodeID>k__BackingField: d8df7387-4752-454e-be6f-ef5b2c11d66e
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 2
+    position: {x: 1304.8, y: 28}
+  - <ID>k__BackingField: d8df7387-4752-454e-be6f-ef5b2c11d66e
+    <Name>k__BackingField: zxcvb
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <Text>k__BackingField: Next Dialogue
+      <NodeID>k__BackingField: 
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 1
+    position: {x: 1621.6, y: 217.59999}
+  <OldGroupNames>k__BackingField: []
+  <OldUngroupedNodeNames>k__BackingField:
+  - New Node
+  - Condition
+  - "\u0439\u0446"
+  - "\u0444\u044B\u0432"
+  - asd
+  - zxcb
+  - zxcvb
+  <OldGroupedNodeNames>k__BackingField:
+    list: []

@@ -157,7 +157,7 @@ namespace DialogEditor
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator
             (
-                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode("Condition", typeNode,GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateChoiceNode("Condition", typeNode,GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
             );
             return contextualMenuManipulator;
         }
@@ -176,6 +176,21 @@ namespace DialogEditor
 
             AddUngroupeNodes(node);
 
+
+            return node;
+        }
+
+        internal Node CreateChoiceNode(string nodeName, DialogueType typeNode,Vector2 position, bool shouldDraw = true)
+        {
+            Type nodeType = Type.GetType($"DialogEditor.Elements.{typeNode}Node");
+
+            DialogNode node = (DialogNode) Activator.CreateInstance(nodeType);
+            node.Intialize(nodeName,this,position);
+
+            if(shouldDraw)
+            {
+                node.Draw();
+            }
 
             return node;
         }
