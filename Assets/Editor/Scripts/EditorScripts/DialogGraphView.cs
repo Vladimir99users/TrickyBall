@@ -132,7 +132,7 @@ namespace DialogEditor
             this.AddManipulator(CreateNodeContextMenu("Single Node", DialogueType.SingleChoise));
             this.AddManipulator(CreateNodeContextMenu("Multi Node", DialogueType.MultipleChoise));
             this.AddManipulator(CreateGroupContextMenu());
-            this.AddManipulator(CreateConditionContextMenu("Condition", DialogueType.Condition));
+            this.AddManipulator(CreateConditionContextMenu("Choice", DialogueType.Choice));
         }
 
         private IManipulator CreateGroupContextMenu()
@@ -184,7 +184,7 @@ namespace DialogEditor
         {
             Type nodeType = Type.GetType($"DialogEditor.Elements.{typeNode}Node");
 
-            DialogNode node = (DialogNode) Activator.CreateInstance(nodeType);
+            ChoiceNode node = (ChoiceNode) Activator.CreateInstance(nodeType);
             node.Intialize(nodeName,this,position);
 
             if(shouldDraw)
@@ -541,6 +541,7 @@ namespace DialogEditor
                 List<GroupElements> groupsToDelete = new List<GroupElements>();
                 List<Edge> edgesToDelete = new List<Edge>();
                 List<DialogNode> nodeToDelete = new List<DialogNode>();
+                List<ChoiceNode> nodeToDeleteChoice = new List<ChoiceNode>();
 
                 foreach (GraphElement element in selection)
                 {
@@ -550,6 +551,11 @@ namespace DialogEditor
                         continue;
                     }
 
+                    if(element is ChoiceNode)
+                    {
+                        nodeToDeleteChoice.Add((ChoiceNode) element);
+                        continue;
+                    }
                     if(element.GetType() == edgeType)
                     {
                         Edge edge = (Edge)element;
@@ -600,6 +606,12 @@ namespace DialogEditor
                     RemoveUngroupeNode(node);
                     node.DisconnectAllPorts();
                     RemoveElement(node);
+                }
+
+                foreach (var choice in nodeToDeleteChoice)
+                {
+                    // TODO delete CHOICE PORT
+                    RemoveElement(choice);
                 }
             };
         }

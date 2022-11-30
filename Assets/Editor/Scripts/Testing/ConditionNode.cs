@@ -23,7 +23,7 @@ namespace DialogEditor.Elements
         {
             base.Intialize(name,dialogGraphView,position);
 
-            _typeDialog = DialogueType.Condition;
+            _typeDialog = DialogueType.Choice;
        
             DialogChoiseSaveData choiceDataTrue = new DialogChoiseSaveData()
             {
@@ -147,15 +147,6 @@ namespace DialogEditor.Elements
           inputContainer.Add(port);
         }   
 
-    }
-
-    public enum OperationName
-    {
-        Equals,
-        Addition,
-        Subtraction,
-        More,
-        Less
     }
 }
 

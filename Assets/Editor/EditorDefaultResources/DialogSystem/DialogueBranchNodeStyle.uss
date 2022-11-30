@@ -6,8 +6,28 @@
 .Branch_box-objectField
 {
     height: 20px;
-    width: 125px;
+    width: 100px;
     margin: auto;
+}
+
+.Branch_box-enumField
+{
+    height: 20px;
+    min-width: 40px;
+    max-width: 45px;
+    margin: auto;
+}
+
+.Branch_text-textField
+{
+    height: 20px;
+    width: 80px;
+    margin: auto;
+}
+.Branch_button
+{
+    height: 20px;
+    width: 20px;
 }
 
 .Branch_Node-size
