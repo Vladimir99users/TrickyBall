@@ -132,7 +132,7 @@ namespace DialogEditor
             this.AddManipulator(CreateNodeContextMenu("Single Node", DialogueType.SingleChoise));
             this.AddManipulator(CreateNodeContextMenu("Multi Node", DialogueType.MultipleChoise));
             this.AddManipulator(CreateGroupContextMenu());
-            this.AddManipulator(CreateConditionContextMenu("Choice", DialogueType.Choice));
+            this.AddManipulator(CreateConditionContextMenu("Choice", DialogueType.Condition));
         }
 
         private IManipulator CreateGroupContextMenu()
@@ -157,7 +157,7 @@ namespace DialogEditor
         {
             ContextualMenuManipulator contextualMenuManipulator = new ContextualMenuManipulator
             (
-                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateChoiceNode("Condition", typeNode,GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
+                menuEvent => menuEvent.menu.AppendAction(actionTitle, actionEvent => AddElement(CreateNode("Choice text", typeNode,GetLocalMousePosition(actionEvent.eventInfo.localMousePosition))))
             );
             return contextualMenuManipulator;
         }
@@ -335,9 +335,9 @@ namespace DialogEditor
                 {
                     foreach (Edge edge in changes.edgesToCreate)
                     {
+
                         DialogNode nextNode = (DialogNode)edge.input.node;
                         DialogChoiseSaveData choiceData = (DialogChoiseSaveData)edge.output.userData;
-
                         choiceData.NodeID = nextNode.ID;
                     }
                 }
@@ -354,9 +354,7 @@ namespace DialogEditor
                         }
 
                         Edge edge = (Edge) element;
-
                         DialogChoiseSaveData  choiceData = (DialogChoiseSaveData) edge.output.userData;
-
                         choiceData.NodeID = "";
                     }
                 }

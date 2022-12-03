@@ -7,6 +7,7 @@ using Dialog.ScriptableObjects;
 
 namespace DialogEditor.Elements
 {
+    using Dialog.Data.Save;
     using Enumerations;
     using Utilities;
     public class ChoiceNode : Node
@@ -17,7 +18,8 @@ namespace DialogEditor.Elements
         public GroupElements Group {get;set;}
         protected DialogGraphView _graphView;
         private DialogueItemDataSO _dataItem;
-        private OperationName _operation;
+        private ConditionOperation _operation;
+        private DialogueItemSaveData _saveData;
 
         public virtual void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
         {
@@ -25,7 +27,8 @@ namespace DialogEditor.Elements
             DialogName = name;
             _graphView = dialogGraphView;
             _dataItem = new DialogueItemDataSO();
-            _typeDialog  = DialogueType.Choice;
+            _saveData = new DialogueItemSaveData();
+            _typeDialog  = DialogueType.Condition;
             SetPosition(new Rect(position,Vector2.zero));
             
             mainContainer.AddClasses("Branch_Node-size");
@@ -57,8 +60,7 @@ namespace DialogEditor.Elements
             titleButtonContainer.Add(menu);
         }
 
-        private void AddCondition()
-        {
+        private void AddCondition(){
             Box boxContainer = new Box();
             boxContainer.AddToClassList("Branch_box-container");
 
@@ -72,18 +74,18 @@ namespace DialogEditor.Elements
            objectField.RegisterValueChangedCallback(callback =>
            {
                 _dataItem = objectField.value as DialogueItemDataSO;
-                Debug.Log(_dataItem.Data.Text);
+                Debug.Log(_dataItem.Data.Name);
            });
            objectField.SetValueWithoutNotify(_dataItem);
            objectField.FindAncestorUserData();
 
-           EnumField enumField = new EnumField(OperationName.Equals);
+           EnumField enumField = new EnumField(ConditionOperation.Equals);
            enumField.value = _operation;
            enumField.SetValueWithoutNotify(_operation);
 
            enumField.RegisterValueChangedCallback(callback =>
            {
-                _operation = (OperationName)enumField.value;
+                _operation = (ConditionOperation)enumField.value;
                 Debug.Log(_operation);
            });
     

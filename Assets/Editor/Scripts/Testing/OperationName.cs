@@ -1,12 +1,17 @@
 namespace DialogEditor.Elements
 {
-    public enum OperationName
+    public enum ConditionOperation
     {
         Equals,
-        Addition,
-        Subtraction,
         More,
         Less
+    }
+
+    public enum MathOperation
+    {
+        Addition,
+        Subtraction
+
     }
 }
 

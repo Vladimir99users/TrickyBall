@@ -8,8 +8,8 @@ namespace Dialog.Data.Save
     [System.Serializable]
     public class DialogueItemSaveData
     {
-        [field: SerializeField] public string Text {get;set;}
-        [field: SerializeField] public string Count {get;set;}        
+        [field: SerializeField] public string Name {get;set;}
+        [field: SerializeField] public string Count {get;set;}     
     }
 }
 

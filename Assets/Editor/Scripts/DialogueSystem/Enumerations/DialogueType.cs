@@ -7,6 +7,7 @@ namespace DialogEditor.Enumerations
         None,
         SingleChoise,
         MultipleChoise,
-        Choice
+        Choice,
+        Condition
     }
 }

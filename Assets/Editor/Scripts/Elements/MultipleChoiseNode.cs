@@ -80,17 +80,6 @@ namespace DialogEditor.Elements
 
                 deleteChoiceButton.AddToClassList("dialog-node__button");
 
-                TextField choiceTextFiled = DialogElementUtility.CreatTextField(choiceData.Text, null, callback =>{
-                    choiceData.Text = callback.newValue;
-                });
-
-                choiceTextFiled.AddClasses(
-                    "dialog-node_textfield",
-                    "dialog-node_choice-textfield",
-                    "dialog-node_textfield_hidden"
-                );
-
-                choicePort.Add(choiceTextFiled);
                 choicePort.Add(deleteChoiceButton);
                 
                 return choicePort;

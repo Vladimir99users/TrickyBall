@@ -10,6 +10,12 @@
     margin: auto;
 }
 
+.Branch_box-integerField
+{
+    height: 20px;
+    width: 50px;
+}
+
 .Branch_box-enumField
 {
     height: 20px;
@@ -33,9 +39,9 @@
 .Branch_Node-size
 {
     min-height: 100px;
-    max-height: 200px;
-    min-width: 100px;
-    max-width: 200px;
+    max-height: auto;
+    min-width: 250px;
+    max-width: 350px;
     border-radius: 15px;
-    background-color: var(--ds-colors-button-background);
+    background-color: #520952;
 }
