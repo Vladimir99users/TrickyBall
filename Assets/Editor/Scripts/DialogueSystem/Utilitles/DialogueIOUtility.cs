@@ -481,6 +481,24 @@ namespace DialogEditor.Utilities
             return choices;
         }
 
+        // myMethod node item choice
+        private static List<DialogueItemSaveData> CloneNodeItemChoices(List<DialogueItemSaveData> nodeItem)
+        {
+            List<DialogueItemSaveData> items = new List<DialogueItemSaveData>();
+
+            foreach (DialogueItemSaveData item in nodeItem)
+            {
+                DialogueItemSaveData choiceData = new DialogueItemSaveData()
+                {
+                    Name = item.Name,
+                    Count = item.Count.ToString()
+                };
+                items.Add(choiceData);
+            }
+
+            return items;
+        }
+
 
         #endregion
 

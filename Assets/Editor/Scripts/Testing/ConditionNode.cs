@@ -16,7 +16,7 @@ namespace DialogEditor.Elements
     {   
         private ConditionOperation _conditionOperation;
         private MathOperation _mathOperation;
-        private DialogueItemDataSO _dataItem;
+        private List<DialogueItemDataSO> Data;
         private int _count;
 
         internal override void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
@@ -24,7 +24,7 @@ namespace DialogEditor.Elements
             base.Intialize(name,dialogGraphView,position);
 
             _typeDialog = DialogueType.Choice;
-            _dataItem = new DialogueItemDataSO();
+            Data = new List<DialogueItemDataSO>();
             DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
             {
                 Text = "out"
@@ -115,102 +115,46 @@ namespace DialogEditor.Elements
         }
         private void AddCondition(ConditionOperation operation){
             Box boxContainer = new Box();
+            DialogueItemDataSO item = new DialogueItemDataSO();
+            boxContainer.AddToClassList("Branch_box-container");
+
+            ObjectField objectField = new ObjectField()
+            {
+                objectType = typeof(DialogueItemSaveData),
+                allowSceneObjects = false,
+                value = item.Data
+            };
             
-            boxContainer.AddToClassList("Branch_box-container");
-
-            ObjectField objectField = new ObjectField()
+            objectField.RegisterValueChangedCallback(callback =>
             {
-                objectType = typeof(DialogueItemDataSO),
-                allowSceneObjects = false,
-                value = _dataItem
-            };
-           
-           objectField.RegisterValueChangedCallback(callback =>
-           {
-                _dataItem = objectField.value as DialogueItemDataSO;
-           });
-           objectField.SetValueWithoutNotify(_dataItem);
-           objectField.FindAncestorUserData();
-
-           EnumField enumField = new EnumField(operation);
-           enumField.value = _conditionOperation;
-           enumField.SetValueWithoutNotify(_conditionOperation);
-
-           enumField.RegisterValueChangedCallback(callback =>
-           {
-                _conditionOperation = (ConditionOperation)enumField.value;
-                Debug.Log(_conditionOperation);
-           });
-    
-           
-
-           Button button = new Button()
-           {
-                text = "X"
-           };
-           button.clicked += () =>
-           {
-                DeleteBoxContainer(boxContainer);
-           };
-
-
-           button.AddToClassList("Branch_button");
-           objectField.AddClasses("Branch_box-objectField");
-           enumField.AddClasses("Branch_box-enumField");
-
-           boxContainer.Add(button);
-           boxContainer.Add(objectField);
-           boxContainer.Add(enumField);
-
-           mainContainer.Add(boxContainer);
-           RefreshExpandedState();
-
-        }
-
-        private void SetNewValue(MathOperation operation)
-        {
-            Box boxContainer = new Box();
-            boxContainer.AddToClassList("Branch_box-container");
-
-            ObjectField objectField = new ObjectField()
+                 item.Data = objectField.value as DialogueItemSaveData;
+            });
+            objectField.SetValueWithoutNotify(item);
+            objectField.FindAncestorUserData();
+ 
+            EnumField enumField = new EnumField(operation);
+            enumField.value = _conditionOperation;
+            enumField.SetValueWithoutNotify(_conditionOperation);
+ 
+            enumField.RegisterValueChangedCallback(callback =>
             {
-                objectType = typeof(DialogueItemDataSO),
-                allowSceneObjects = false,
-                value = _dataItem
-            };
-           
-           objectField.RegisterValueChangedCallback(callback =>
-           {
-                _dataItem = objectField.value as DialogueItemDataSO;
-           });
+                 item.Type = (ConditionOperation)enumField.value;
+                 Debug.Log(item.Type);
+            });
 
-           objectField.SetValueWithoutNotify(_dataItem);
-           objectField.FindAncestorUserData();
-
-           EnumField enumField = new EnumField(operation);
-           enumField.value = operation;
-           enumField.SetValueWithoutNotify(operation);
-
-           enumField.RegisterValueChangedCallback(callback =>
-           {
-                _mathOperation = (MathOperation)enumField.value;
-                Debug.Log(_mathOperation);
-           });
-
-           IntegerField textNumber = new IntegerField();
+            IntegerField textNumber = new IntegerField();
             textNumber.RegisterValueChangedCallback(callback => 
             {
-                _count = textNumber.value;
+                item.Count = textNumber.value.ToString();
             });
            
-
            Button button = new Button()
            {
                 text = "X"
            };
            button.clicked += () =>
            {
-                DeleteBoxContainer(boxContainer);
+                DeleteBoxContainer(boxContainer,item);
            };
 
 
@@ -223,12 +167,76 @@ namespace DialogEditor.Elements
            boxContainer.Insert(1,objectField);
            boxContainer.Insert(2,enumField);
            boxContainer.Insert(3,textNumber);
+           Data.Add(item);
+           mainContainer.Add(boxContainer);
+           RefreshExpandedState();
 
+        }
+
+        private void SetNewValue(MathOperation operation)
+        {
+            Box boxContainer = new Box();
+            boxContainer.AddToClassList("Branch_box-container");
+            DialogueItemDataSO item = new DialogueItemDataSO();
+
+            ObjectField objectField = new ObjectField()
+            {
+                objectType = typeof(DialogueItemSaveData),
+                allowSceneObjects = false,
+                value = item.Data
+            };
+           
+           objectField.RegisterValueChangedCallback(callback =>
+           {
+                item.Data = objectField.value as DialogueItemSaveData;
+           });
+
+           objectField.SetValueWithoutNotify(item);
+           objectField.FindAncestorUserData();
+
+           EnumField enumField = new EnumField(operation);
+           enumField.value = operation;
+           enumField.SetValueWithoutNotify(operation);
+
+           enumField.RegisterValueChangedCallback(callback =>
+           {
+                item.Type = (MathOperation)enumField.value;
+                Debug.Log(item.Type);
+           });
+
+            IntegerField textNumber = new IntegerField();
+            textNumber.RegisterValueChangedCallback(callback => 
+            {
+                item.Count = textNumber.value.ToString();
+            });
+           
+
+           Button button = new Button()
+           {
+                text = "X"
+           };
+           button.clicked += () =>
+           {
+                DeleteBoxContainer(boxContainer,item);
+           };
+
+
+           button.AddToClassList("Branch_button");
+           objectField.AddClasses("Branch_box-objectField");
+           enumField.AddClasses("Branch_box-enumField");
+           textNumber.AddClasses("Branch_box-integerField");
+
+           boxContainer.Insert(0,button);
+           boxContainer.Insert(1,objectField);
+           boxContainer.Insert(2,enumField);
+           boxContainer.Insert(3,textNumber);
+           Data.Add(item);
            mainContainer.Add(boxContainer);
            RefreshExpandedState();
         }
-        private void DeleteBoxContainer(Box container)
+        private void DeleteBoxContainer(Box container, DialogueItemDataSO data)
         {
+            Data.Remove(data);
             mainContainer.Remove(container);
         }
 

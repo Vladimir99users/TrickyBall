@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: LocalItem
-  m_EditorClassIdentifier: Assembly-CSharp-Editor:Dialog.ScriptableObjects:DialogueItemDataSO
-  <Data>k__BackingField:
-    <Name>k__BackingField: 
-    <Count>k__BackingField: 0
+  m_Script: {fileID: 11500000, guid: c962d1776bf72ff43b39c872e86ec5ac, type: 3}
+  m_Name: Knife
+  m_EditorClassIdentifier: 
+  <Name>k__BackingField: Knife
+  <Count>k__BackingField: 0

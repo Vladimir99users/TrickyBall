@@ -7,10 +7,7 @@ namespace Dialog.ScriptableObjects
 
     public class DialogueItemDataSAVESO : MonoBehaviour
     {
-        public List<DialogueItemDataSO> Items {get;set;}
-        public string TextChoice {get;set;}
-        public object Type {get;set;}
-
-
+        [field: SerializeField] public List<DialogueItemDataSO> Items {get;set;}
+        [field: SerializeField] public string TextChoice {get;set;}
     }
 }

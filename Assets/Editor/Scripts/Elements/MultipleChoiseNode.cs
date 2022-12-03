@@ -58,9 +58,8 @@ namespace DialogEditor.Elements
                 Port choicePort = this.CreatPort();
                 
                 choicePort.userData = userData;
-
                 DialogChoiseSaveData choiceData = (DialogChoiseSaveData) userData;
-
+                
                 Button deleteChoiceButton = DialogElementUtility.CreateButton("Delete", () =>
                 {
                     if(Choices.Count == 1)
