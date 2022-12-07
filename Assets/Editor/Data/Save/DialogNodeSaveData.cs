@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DialogEditor.Enumerations;
-
+using Dialog.ScriptableObjects;
 
 namespace Dialog.Data.Save
 {

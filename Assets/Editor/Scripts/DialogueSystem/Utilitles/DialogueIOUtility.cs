@@ -473,7 +473,8 @@ namespace DialogEditor.Utilities
                 DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
                 {
                     Text = choice.Text,
-                    NodeID = choice.NodeID
+                    NodeID = choice.NodeID,
+                    Data = choice.Data
                 };
                 choices.Add(choiceData);
             }
