@@ -8,6 +8,7 @@ namespace Dialog.Data.Save
     public class DialogChoiseSaveData
     {
         [field: SerializeField] public string Text {get;set;}
+        [field: SerializeField] public LocalItem Item {get;set;}
         [field: SerializeField] public string NodeID {get;set;}
     }
 }

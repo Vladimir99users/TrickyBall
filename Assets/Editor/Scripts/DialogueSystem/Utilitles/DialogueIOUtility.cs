@@ -275,7 +275,9 @@ namespace DialogEditor.Utilities
             {
                 DialogChoiceData choiceData = new DialogChoiceData()
                 {
-                    Text = nodeChoice.Text
+                    Text = nodeChoice.Text,
+                    Item = nodeChoice.Item
+                
                 };
                 dialogChoices.Add(choiceData);
             }
