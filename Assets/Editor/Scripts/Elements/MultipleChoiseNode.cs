@@ -38,7 +38,8 @@ namespace DialogEditor.Elements
             {
                 DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
                 {
-                    Text = "New Choice"
+                    Text = "New Choice",
+                    Item = "name"
                 };
 
                 Choices.Add(choiceData);
@@ -84,6 +85,11 @@ namespace DialogEditor.Elements
                     choiceData.Text = callback.newValue;
                 });
 
+                TextField itemName = DialogElementUtility.CreatTextField("name",null, callback =>
+                {
+                    choiceData.Item = callback.newValue;
+                });
+
                 choiceTextFiled.AddClasses(
                     "dialog-node_textfield",
                     "dialog-node_choice-textfield",
@@ -91,6 +97,7 @@ namespace DialogEditor.Elements
                 );
 
                 choicePort.Add(choiceTextFiled);
+                choicePort.Add(itemName);
                 choicePort.Add(deleteChoiceButton);
                 
                 return choicePort;

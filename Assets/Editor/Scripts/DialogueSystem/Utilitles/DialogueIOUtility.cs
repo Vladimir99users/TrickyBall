@@ -276,13 +276,22 @@ namespace DialogEditor.Utilities
                 DialogChoiceData choiceData = new DialogChoiceData()
                 {
                     Text = nodeChoice.Text,
-                    Item = nodeChoice.Item
+                    Name = nodeChoice.Item
                 
                 };
+              
                 dialogChoices.Add(choiceData);
             }
             return dialogChoices;
         }
+
+        /*private static LocalItem CreateItem (LocalItem item)
+        {
+            LocalItem item1 = new LocalItem();
+            Debug.Log(item.Name);
+            item1.Initialize(item.Name);
+            return item1;
+        }*/
 
         
         private static void UpdateOldGroupedNodes(SerializableDictionary<string, List<string>> currentGroupedNodeNames, DialogGraphSaveDataSO graphData)
@@ -475,6 +484,7 @@ namespace DialogEditor.Utilities
                 DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
                 {
                     Text = choice.Text,
+                    Item = choice.Item,
                     NodeID = choice.NodeID
                 };
                 choices.Add(choiceData);

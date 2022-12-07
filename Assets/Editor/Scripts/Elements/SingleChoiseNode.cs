@@ -20,9 +20,13 @@ namespace DialogEditor.Elements
             _typeDialog = DialogueType.SingleChoise;
             choiceData = new DialogChoiseSaveData()
             {
-                Text = "Next Dialogue"
+                Text = "Next Dialogue",
+                Item = "name"
+                
             };
+
             Choices.Add(choiceData);
+           
        }
 
         internal override void Draw()
@@ -36,21 +40,29 @@ namespace DialogEditor.Elements
                 choisePort.userData = choice; 
                 outputContainer.Add(choisePort);
             }
-            LocalItem item = new LocalItem();
-            ObjectField objectField = new ObjectField()
+
+
+
+
+          /*  ObjectField objectField = new ObjectField()
             {
                 objectType = typeof(LocalItem),
                 allowSceneObjects = false,
                 value = null
 
             };
+
+
+
             objectField.RegisterValueChangedCallback(callback =>
             {
-                item = newValue;
-            });
-            
-            choiceData.Item = item;
+                 choiceData.Item = objectField.value as LocalItem;
+                 Debug.Log(choiceData.Item.Name);
+            });*/
 
+            
+          
+            //extensionContainer.Add(itemName);
             RefreshExpandedState();
         }
     }
