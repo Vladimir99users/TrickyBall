@@ -10,7 +10,7 @@ namespace Dialog.Data.Save
     public class DialogNodeSaveData
     {
         [field: SerializeField] public string ID {get;set;}
-        [field: SerializeField] public string Name {get;set;}
+        [field: SerializeField] public string Titel {get;set;}
         [field: SerializeField] public string Text {get;set;}
         [field: SerializeField] public List<DialogChoiseSaveData> Choices { get; set; }  
         [field: SerializeField] public string GroupID {get;set;}

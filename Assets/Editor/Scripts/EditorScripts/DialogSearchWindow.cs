@@ -24,11 +24,6 @@ namespace DialogEditor.Windows
             {
                 new SearchTreeGroupEntry(new GUIContent("Create Element")),
                 new SearchTreeGroupEntry(new GUIContent("Dialogue Node"),1),
-                new SearchTreeEntry(new GUIContent("Single Choice",_identationIcon))
-                {
-                    level = 2,
-                    userData = DialogueType.SingleChoise
-                },
                 new SearchTreeEntry(new GUIContent("Multiple Choice",_identationIcon))
                 {
                     level = 2,
@@ -50,12 +45,7 @@ namespace DialogEditor.Windows
             Vector2 localMousePosition  = _grahpView.GetLocalMousePosition(context.screenMousePosition, true);
             switch (SearchTreeEntry.userData)
             {
-                case DialogueType.SingleChoise:
-                {
-                    SingleChoiseNode singleNode = (SingleChoiseNode) _grahpView.CreateNode("New Single Node",DialogueType.SingleChoise, localMousePosition);
-                    _grahpView.AddElement(singleNode);
-                    return true;
-                }
+
                 case DialogueType.MultipleChoise:
                 {
                     MultipleChoiseNode  multipleNode = (MultipleChoiseNode) _grahpView.CreateNode("New Multi Node",DialogueType.MultipleChoise, localMousePosition);

@@ -9,13 +9,17 @@ namespace DialogEditor.Elements
     using Dialog.Data.Save;
     public class MultipleChoiseNode : DialogNode
     {
+       public string Text {get;set;}
        internal override void Intialize(string nodeName, DialogGraphView dialogGraphView, Vector2 position)
        {
             base.Intialize(nodeName,dialogGraphView, position);
+            
             _typeDialog = DialogueType.MultipleChoise;
+            Text = "Dialog text";
+
             DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
             {
-                Text = "New Choice"
+                ChoiceText = "New Choice"
             };
             Choices.Add(choiceData);
        }
@@ -23,13 +27,28 @@ namespace DialogEditor.Elements
         internal override void Draw()
         {
             base.Draw();
-            DrawDialogAddChoiceButton();
-            foreach (var choice in Choices)
+                     // connectors
+            VisualElement customDataContainer = new VisualElement();
+            customDataContainer.AddClasses("dialog-node_custom-data-container");
+            Foldout textFoldout = DialogElementUtility.CreateFoldout( "Dialog text" );
+            TextField textTextField = DialogElementUtility.CreatTextArea(Text,null, callback =>
             {
-                Port choicePort = CreateSingleChoice(choice);
-                outputContainer.Add(choicePort);
-            }
-            RefreshExpandedState();
+              Text = callback.newValue;
+            });
+            textTextField.AddClasses(
+                 "dialog-node_textfield",
+                 "dialog-node_quote-textfield"
+            );
+            textFoldout.Add(textTextField);
+            customDataContainer.Add(textFoldout);
+            extensionContainer.Add(customDataContainer);
+                DrawDialogAddChoiceButton();
+                foreach (var choice in Choices)
+                {
+                    Port choicePort = CreateSingleChoice(choice);
+                    outputContainer.Add(choicePort);
+                }
+                RefreshExpandedState();
         }
 
         private void DrawDialogAddChoiceButton()
@@ -38,7 +57,7 @@ namespace DialogEditor.Elements
             {
                 DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
                 {
-                    Text = "New Choice"
+                    ChoiceText = "Empty in multiplay node"
                 };
 
                 Choices.Add(choiceData);

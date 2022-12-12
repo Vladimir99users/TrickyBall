@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fb2dc1288aad3a498e66b41032bd346, type: 3}
+  m_Name: testSSGraph
+  m_EditorClassIdentifier: 
+  <FileName>k__BackingField: testSS
+  <Groups>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <ID>k__BackingField: de20009d-8ff9-4e66-804e-07e2d3eee8a7
+    <Titel>k__BackingField: hello
+    <Text>k__BackingField: 
+    <Choices>k__BackingField:
+    - <ChoiceText>k__BackingField: out
+      <NodeID>k__BackingField: 
+      <ItemData>k__BackingField: []
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 4
+    position: {x: 442.4, y: 68}
+  - <ID>k__BackingField: e81fbaeb-8e36-452c-aeba-2cc223a04ab4
+    <Titel>k__BackingField: New Node
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <ChoiceText>k__BackingField: Choice text
+      <NodeID>k__BackingField: de20009d-8ff9-4e66-804e-07e2d3eee8a7
+      <ItemData>k__BackingField: []
+    - <ChoiceText>k__BackingField: asd
+      <NodeID>k__BackingField: de058c17-48f5-47e4-b3eb-d65b9c7c5bd7
+      <ItemData>k__BackingField: []
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 2
+    position: {x: 134.4, y: 92}
+  - <ID>k__BackingField: de058c17-48f5-47e4-b3eb-d65b9c7c5bd7
+    <Titel>k__BackingField: asd
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <ChoiceText>k__BackingField: New Node
+      <NodeID>k__BackingField: c358a431-794b-4d7c-acf7-9e9b9f5a629e
+      <ItemData>k__BackingField: []
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 2
+    position: {x: 442.4, y: 199.2}
+  - <ID>k__BackingField: c358a431-794b-4d7c-acf7-9e9b9f5a629e
+    <Titel>k__BackingField: zxc
+    <Text>k__BackingField: Dialog text
+    <Choices>k__BackingField:
+    - <ChoiceText>k__BackingField: New Choice
+      <NodeID>k__BackingField: 
+      <ItemData>k__BackingField: []
+    <GroupID>k__BackingField: 
+    <Type>k__BackingField: 2
+    position: {x: 736.8, y: 156.8}
+  <OldGroupNames>k__BackingField: []
+  <OldUngroupedNodeNames>k__BackingField:
+  - hello
+  - New Node
+  - asd
+  - zxc
+  <OldGroupedNodeNames>k__BackingField:
+    list: []

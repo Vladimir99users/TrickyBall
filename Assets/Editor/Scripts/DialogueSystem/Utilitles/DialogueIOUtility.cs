@@ -11,6 +11,7 @@ namespace DialogEditor.Utilities
     using Dialog.Data;
     using Dialog.Data.Save;
     using Dialog.ScriptableObjects;
+    using DialogEditor.Enumerations;
     using Elements;
 
     public static class DialogueIOUtility
@@ -121,7 +122,7 @@ namespace DialogEditor.Utilities
            {
 
                 List<DialogChoiseSaveData> choices = CloneNodeChoices(nodeData.Choices);
-                DialogNode node = (DialogNode)_graphView.CreateNode(nodeData.Name,nodeData.Type, nodeData.position,false);
+                MultipleChoiseNode node = (MultipleChoiseNode)_graphView.CreateNode(nodeData.Titel,nodeData.Type, nodeData.position,false);
 
                 node.ID = nodeData.ID;
                 node.Choices = choices;
@@ -202,17 +203,31 @@ namespace DialogEditor.Utilities
             List<string> ungroupedNodeNames = new List<string>();
             foreach (var node in _nodes)
             {
-                SaveNodeToGraph(node,graphData);
-                SaveNodeToScriptableObject(node,dialogContainerSO);
+                switch(node._typeDialog)
+                {
+                    case DialogueType.MultipleChoise:
+                    {
+                        SaveNodeToGraph((MultipleChoiseNode)node,graphData);
+                        SaveNodeToScriptableObject((MultipleChoiseNode)node,dialogContainerSO);
+                        break;
+                    }
+                    case DialogueType.Condition:
+                    {
+                        SaveNodeConditionToGraph((ConditionNode)node,graphData);
+                        SaveNodeToScriptableObject((ConditionNode)node,dialogContainerSO);
+                        break;
+                    }
+                }
+                
 
                 if(node.Group != null)
                 {
-                    groupedNodeNames.AddItem(node.Group.title, node.DialogName);
+                    groupedNodeNames.AddItem(node.Group.title, node.DialogueName);
 
                     continue;
                 }
 
-                ungroupedNodeNames.Add(node.DialogName);
+                ungroupedNodeNames.Add(node.DialogueName);
             }
 
             UpdateDialoguesChoicesConnections();
@@ -222,14 +237,14 @@ namespace DialogEditor.Utilities
             UpdateOldUngroupedNodes(ungroupedNodeNames, graphData);
         }
 
-        private static void SaveNodeToGraph(DialogNode node, DialogGraphSaveDataSO graphData)
+        private static void SaveNodeToGraph(MultipleChoiseNode node, DialogGraphSaveDataSO graphData)
         {
             List<DialogChoiseSaveData> choices = CloneNodeChoices(node.Choices);
 
             DialogNodeSaveData nodeData = new DialogNodeSaveData()
             {
                 ID = node.ID,
-                Name = node.DialogName,
+                Titel = node.DialogueName,
                 Choices = choices,
                 Text = node.Text,
                 GroupID = node.Group?.ID,
@@ -239,26 +254,90 @@ namespace DialogEditor.Utilities
 
             graphData.Nodes.Add(nodeData);
         }
+        private static void SaveNodeConditionToGraph(ConditionNode node, DialogGraphSaveDataSO graphData)
+        {
+            List<DialogChoiseSaveData> choices = CloneNodeChoices(node.Choices);
+
+            DialogNodeSaveData nodeData = new DialogNodeSaveData()
+            {
+                ID = node.ID,
+                Titel = node.DialogueName,
+                Choices = choices,
+                GroupID = node.Group?.ID,
+                Type = node._typeDialog,
+                position = node.GetPosition().position
+            };
+
+            graphData.Nodes.Add(nodeData);
+        }
+
+        
+        private static List<DialogChoiseSaveData> CloneNodeChoices(List<DialogChoiseSaveData> nodeChoices)
+        {
+            List<DialogChoiseSaveData> choices = new List<DialogChoiseSaveData>();
+
+            foreach (DialogChoiseSaveData choice in nodeChoices)
+            {
+                DialogChoiseSaveData choiceData  = new DialogChoiseSaveData()
+                {
+                    ChoiceText = choice.ChoiceText,
+                    NodeID = choice.NodeID,
+                    //Data = CloneNodeItemChoices(choice.Data)
+                };
+                
+                
+                choices.Add(choiceData);
+            }
+
+            return choices;
+        }
 
 
-        private static void SaveNodeToScriptableObject(DialogNode node, DialogContainerSO dialogContainerSO)
+
+        private static void SaveNodeToScriptableObject(MultipleChoiseNode node, DialogContainerSO dialogContainerSO)
         {
             DialogSO dialogue;
 
             if(node.Group != null)
             {
-                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Groups/{node.Group.title}/Dialogues", node.DialogName);
+                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Groups/{node.Group.title}/Dialogues", node.DialogueName);
                 dialogContainerSO.DialogueGroups.AddItem(_createdDialogueGroups[node.Group.ID], dialogue);
             } else 
             {
-                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Global/Dialogues", node.DialogName);
+                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Global/Dialogues", node.DialogueName);
                 
                 dialogContainerSO.UngroupedDialogues.Add(dialogue);
             }
 
             dialogue.Initialize(
-                node.DialogName,
+                node.DialogueName,
                 node.Text,
+                ConvertNodeChoicesToDialogChoices(node.Choices),
+                node._typeDialog,
+                node.IsStartingNode()
+            );
+            _createdDialogues.Add(node.ID, dialogue);
+            SaveAssets(dialogue);
+        }
+
+        private static void SaveNodeToScriptableObject(ConditionNode node, DialogContainerSO dialogContainerSO)
+        {
+            DialogSO dialogue;
+
+            if(node.Group != null)
+            {
+                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Groups/{node.Group.title}/Dialogues", node.DialogueName);
+                dialogContainerSO.DialogueGroups.AddItem(_createdDialogueGroups[node.Group.ID], dialogue);
+            } else 
+            {
+                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Global/Dialogues", node.DialogueName);
+                
+                dialogContainerSO.UngroupedDialogues.Add(dialogue);
+            }
+
+            dialogue.Initialize(
+                node.DialogueName,
+                node.title = null,
                 ConvertNodeChoicesToDialogChoices(node.Choices),
                 node._typeDialog,
                 node.IsStartingNode()
@@ -275,8 +354,8 @@ namespace DialogEditor.Utilities
             {
                 DialogChoiceData choiceData = new DialogChoiceData()
                 {
-                    Text = nodeChoice.Text,
-                    Data = CloneNodeItemChoices(nodeChoice.Data)
+                    Text = nodeChoice.ChoiceText,
+                    Data = CloneNodeItemChoices(nodeChoice.ItemData)
                 };
 
                 dialogChoices.Add(choiceData);
@@ -286,16 +365,13 @@ namespace DialogEditor.Utilities
         // myMethod node item choice
         private static List<DialogueItemDataSO> CloneNodeItemChoices(List<DialogueItemDataSO> nodeItem)
         {
-             Debug.Log("3");
             List<DialogueItemDataSO> items = new List<DialogueItemDataSO>();
-            Debug.Log("1");
             
             if(nodeItem is null) return null;
 
 
             foreach (DialogueItemDataSO item in nodeItem)
             {
-                 Debug.Log("2");
                 DialogueItemDataSO choiceData = new DialogueItemDataSO()
                 {
                     NameItem = item.NameItem,
@@ -491,37 +567,6 @@ namespace DialogEditor.Utilities
         }
 
         
-        private static List<DialogChoiseSaveData> CloneNodeChoices(List<DialogChoiseSaveData> nodeChoices)
-        {
-            List<DialogChoiseSaveData> choices = new List<DialogChoiseSaveData>();
-
-            foreach (DialogChoiseSaveData choice in nodeChoices)
-            {
-                DialogChoiseSaveData choiceData;
-                if(choice.Data is null)
-                {
-                    choiceData = new DialogChoiseSaveData()
-                    {
-                        Text = choice.Text,
-                        NodeID = choice.NodeID,
-                        //Data = CloneNodeItemChoices(choice.Data)
-                    };
-                } else 
-                {
-                    choiceData = new DialogChoiseSaveData()
-                    {
-                        Text = choice.Text,
-                        NodeID = choice.NodeID,
-                        Data = choice.Data
-                    };
-                }
-                
-                choices.Add(choiceData);
-            }
-
-            return choices;
-        }
-
 
 
 

@@ -129,7 +129,6 @@ namespace DialogEditor
 
         private void ManipulationOnAddNewNodeInContextMenu()
         {
-            this.AddManipulator(CreateNodeContextMenu("Single Node", DialogueType.SingleChoise));
             this.AddManipulator(CreateNodeContextMenu("Multi Node", DialogueType.MultipleChoise));
             this.AddManipulator(CreateGroupContextMenu());
             this.AddManipulator(CreateConditionContextMenu("Choice", DialogueType.Condition));
@@ -180,24 +179,10 @@ namespace DialogEditor
             return node;
         }
 
-        internal Node CreateChoiceNode(string nodeName, DialogueType typeNode,Vector2 position, bool shouldDraw = true)
-        {
-            Type nodeType = Type.GetType($"DialogEditor.Elements.{typeNode}Node");
-
-            ChoiceNode node = (ChoiceNode) Activator.CreateInstance(nodeType);
-            node.Intialize(nodeName,this,position);
-
-            if(shouldDraw)
-            {
-                node.Draw();
-            }
-
-            return node;
-        }
 
         public void AddUngroupeNodes(DialogNode node)
         {
-            string nodeName = node.DialogName.ToLower();
+            string nodeName = node.DialogueName.ToLower();
             if(!_ungroupeNodes.ContainsKey(nodeName))
             {
                 DialogNodeErrorData nodeErrorData = new DialogNodeErrorData();
@@ -222,7 +207,7 @@ namespace DialogEditor
 
         public void RemoveUngroupeNode(DialogNode node)
         {
-            string nodeName = node.DialogName.ToLower();
+            string nodeName = node.DialogueName.ToLower();
             List<DialogNode> ungroupNodesList = _ungroupeNodes[nodeName].Nodes;
 
             ungroupNodesList.Remove(node);
@@ -340,8 +325,8 @@ namespace DialogEditor
                         DialogNode nextNode = (DialogNode)edge.input.node;
                         DialogChoiseSaveData choiceData = (DialogChoiseSaveData)edge.output.userData;
                         choiceData.NodeID = nextNode.ID;
-                        choiceData.Text = nextNode.DialogName;
- 
+                        choiceData.ChoiceText = nextNode.DialogueName;
+                        //Debug.Log("id next node = " + nextNode.ID + " ID choice = " + choiceData.NodeID + " text choice = " + choiceData.ChoiceText + " nextNode text choice = " + nextNode.DialogName);
                     }
                 }
 
@@ -359,7 +344,8 @@ namespace DialogEditor
                         Edge edge = (Edge) element;
                         DialogChoiseSaveData  choiceData = (DialogChoiseSaveData) edge.output.userData;
                         choiceData.NodeID = "";
-                        choiceData.Data = null;
+                        choiceData.ChoiceText = "<|>";
+                        choiceData.ItemData = null;
                     }
                 }
                 return changes;
@@ -367,7 +353,7 @@ namespace DialogEditor
         }
         public void RemoveGroupedNode(DialogNode node, GroupElements group)
         {
-            string nodeName = node.DialogName.ToLower();
+            string nodeName = node.DialogueName.ToLower();
             node.Group = null;
             List<DialogNode> groupedNodesList = _groupedNodes[group][nodeName].Nodes;
 
@@ -392,7 +378,7 @@ namespace DialogEditor
 
         public void AddGroupedNode(DialogNode node, GroupElements group)
         {
-            string nodeName = node.DialogName.ToLower();
+            string nodeName = node.DialogueName.ToLower();
             node.Group = group;
             if(_groupedNodes.ContainsKey(group) == false)
             {
@@ -543,19 +529,13 @@ namespace DialogEditor
                 List<GroupElements> groupsToDelete = new List<GroupElements>();
                 List<Edge> edgesToDelete = new List<Edge>();
                 List<DialogNode> nodeToDelete = new List<DialogNode>();
-                List<ChoiceNode> nodeToDeleteChoice = new List<ChoiceNode>();
+
 
                 foreach (GraphElement element in selection)
                 {
                     if(element is DialogNode)
                     {
                         nodeToDelete.Add((DialogNode) element);
-                        continue;
-                    }
-
-                    if(element is ChoiceNode)
-                    {
-                        nodeToDeleteChoice.Add((ChoiceNode) element);
                         continue;
                     }
                     if(element.GetType() == edgeType)
@@ -610,11 +590,6 @@ namespace DialogEditor
                     RemoveElement(node);
                 }
 
-                foreach (var choice in nodeToDeleteChoice)
-                {
-                    // TODO delete CHOICE PORT
-                    RemoveElement(choice);
-                }
             };
         }
     }

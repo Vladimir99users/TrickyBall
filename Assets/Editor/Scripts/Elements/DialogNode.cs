@@ -17,9 +17,8 @@ namespace DialogEditor.Elements
     public class DialogNode : Node
     {
      public string ID {get;set;}
-     public string DialogName {get;set;}
+     public string DialogueName {get;set;}
      public List<DialogChoiseSaveData> Choices {get;set;}
-     public string Text {get;set;}
      public DialogueType _typeDialog {get;set;}
      public GroupElements Group {get;set;}
      protected Color defaultBackgroundColor;
@@ -28,9 +27,9 @@ namespace DialogEditor.Elements
      internal virtual void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
      {
           ID = Guid.NewGuid().ToString();
-          DialogName = name;
+          DialogueName = name;
           Choices = new List<DialogChoiseSaveData>();
-          Text = "Dialog text";
+
           _graphView = dialogGraphView;
           defaultBackgroundColor = new Color(29f / 255f,29f / 255f,30f / 255f);
           _typeDialog  = DialogueType.None;
@@ -38,8 +37,7 @@ namespace DialogEditor.Elements
           mainContainer.AddToClassList("dialog-node_main-container");
           extensionContainer.AddToClassList("dialog-node_extension-container");  
      }
-     // Добавление в контекстное меню дополнительного функционала
-     // Сначала название действия, потом кидаем делегат на функцию
+
      public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
      {
           evt.menu.AppendAction("Disconect Input Ports", actionEvent => DisconnectInputPorts());
@@ -50,39 +48,25 @@ namespace DialogEditor.Elements
      {
         DrawTextFieldDialogName();
         DrawConnectors();
-         // connectors
-        VisualElement customDataContainer = new VisualElement();
-        customDataContainer.AddClasses("dialog-node_custom-data-container");
-        Foldout textFoldout = DialogElementUtility.CreateFoldout( "Dialog text" );
-        TextField textTextField = DialogElementUtility.CreatTextArea(Text,null, callback =>
-        {
-          Text = callback.newValue;
-        });
-        textTextField.AddClasses(
-             "dialog-node_textfield",
-             "dialog-node_quote-textfield"
-        );
-        textFoldout.Add(textTextField);
-        customDataContainer.Add(textFoldout);
-        extensionContainer.Add(customDataContainer);
+
         RefreshExpandedState();
      }
      private void DrawTextFieldDialogName()
      {
-        TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogName, null,callback => 
+        TextField dialogNameTextField = DialogElementUtility.CreatTextField(DialogueName, null,callback => 
         {
           TextField target = (TextField) callback.target;
           target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
 
           if(string.IsNullOrEmpty(target.value))
           {
-               if(!string.IsNullOrEmpty(DialogName))
+               if(!string.IsNullOrEmpty(DialogueName))
                {
                     ++_graphView.NameErrorsAmount;
                }
           } else 
           {
-               if(string.IsNullOrEmpty(DialogName))
+               if(string.IsNullOrEmpty(DialogueName))
                {
                     --_graphView.NameErrorsAmount;
                }
@@ -91,13 +75,13 @@ namespace DialogEditor.Elements
           if(Group == null)
           {
                _graphView.RemoveUngroupeNode(this);
-               DialogName = target.value;
+               DialogueName = target.value;
                _graphView.AddUngroupeNodes(this);
                return;
           }
           GroupElements currentGroup = Group;
           _graphView.RemoveGroupedNode(this,Group);
-          DialogName = target.value;
+          DialogueName = target.value;
           _graphView.AddGroupedNode(this,currentGroup);
          
         });
