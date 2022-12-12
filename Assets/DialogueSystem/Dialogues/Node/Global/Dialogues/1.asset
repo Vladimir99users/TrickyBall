@@ -10,12 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14a086207eb83843bd0965d1c365484, type: 3}
-  m_Name: asdfg
+  m_Name: 1
   m_EditorClassIdentifier: 
-  <DialogName>k__BackingField: asdfg
-  <Text>k__BackingField: Dialog text
-  <Choices>k__BackingField:
-  - <Text>k__BackingField: out
-    <NextDialog>k__BackingField: {fileID: 0}
-  <Type>k__BackingField: 3
+  <DialogName>k__BackingField: 
+  <Text>k__BackingField: 
+  <Choices>k__BackingField: []
+  <Type>k__BackingField: 0
   <IsStartingDialogue>k__BackingField: 0

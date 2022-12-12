@@ -14,8 +14,6 @@ namespace DialogEditor.Elements
     using System;
     public class ConditionNode : DialogNode
     {   
-        private ConditionOperation _conditionOperation;
-        private MathOperation _mathOperation;
         private List<DialogueItemDataSO> Data;
         private int _count;
 
@@ -23,11 +21,12 @@ namespace DialogEditor.Elements
         {
             base.Intialize(name,dialogGraphView,position);
 
-            _typeDialog = DialogueType.Choice;
+            _typeDialog = DialogueType.Condition;
             Data = new List<DialogueItemDataSO>();
             DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
             {
-                Text = "out"
+                Text = "out",
+                Data = Data
             };
 
             Choices.Add(choiceData);
@@ -108,11 +107,11 @@ namespace DialogEditor.Elements
             menu.text = "Condition";
             menu.text = "Set item";
 
-            menu.menu.AppendAction("Add new condition", new Action<DropdownMenuAction>(x=> AddCondition(ConditionOperation.Equals)));
+           // menu.menu.AppendAction("Add new condition", new Action<DropdownMenuAction>(x=> AddCondition(ConditionOperation.Equals)));
             menu.menu.AppendAction("Set a new value", new Action<DropdownMenuAction>(x=> SetNewValue(MathOperation.Addition)));
 
             titleButtonContainer.Add(menu);
-        }
+        }/*
         private void AddCondition(ConditionOperation operation){
             Box boxContainer = new Box();
             DialogueItemDataSO item = new DialogueItemDataSO();
@@ -122,14 +121,14 @@ namespace DialogEditor.Elements
             {
                 objectType = typeof(DialogueItemSaveData),
                 allowSceneObjects = false,
-                value = item.Data
+                value = item.Item
             };
             
             objectField.RegisterValueChangedCallback(callback =>
             {
-                 item.Data = objectField.value as DialogueItemSaveData;
+                 item.Item = objectField.value as DialogueItemSaveData;
             });
-            objectField.SetValueWithoutNotify(item);
+
             objectField.FindAncestorUserData();
  
             EnumField enumField = new EnumField(operation);
@@ -145,7 +144,7 @@ namespace DialogEditor.Elements
             IntegerField textNumber = new IntegerField();
             textNumber.RegisterValueChangedCallback(callback => 
             {
-                item.Count = textNumber.value.ToString();
+                item.CountRequare = textNumber.value.ToString();
             });
            
            Button button = new Button()
@@ -172,26 +171,26 @@ namespace DialogEditor.Elements
            RefreshExpandedState();
 
         }
-
+*/
         private void SetNewValue(MathOperation operation)
         {
             Box boxContainer = new Box();
             boxContainer.AddToClassList("Branch_box-container");
             DialogueItemDataSO item = new DialogueItemDataSO();
-
+            DialogueItemSaveData dataSO;
             ObjectField objectField = new ObjectField()
             {
                 objectType = typeof(DialogueItemSaveData),
                 allowSceneObjects = false,
-                value = item.Data
+
             };
            
            objectField.RegisterValueChangedCallback(callback =>
            {
-                item.Data = objectField.value as DialogueItemSaveData;
+                dataSO = objectField.value as DialogueItemSaveData;
+                item.NameItem = dataSO.Name;
+                item.CountItem = dataSO.Count;
            });
-
-           objectField.SetValueWithoutNotify(item);
            objectField.FindAncestorUserData();
 
            EnumField enumField = new EnumField(operation);
@@ -207,7 +206,7 @@ namespace DialogEditor.Elements
             IntegerField textNumber = new IntegerField();
             textNumber.RegisterValueChangedCallback(callback => 
             {
-                item.Count = textNumber.value.ToString();
+                item.CountRequare = textNumber.value.ToString();
             });
            
 

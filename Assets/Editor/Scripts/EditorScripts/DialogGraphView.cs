@@ -335,10 +335,13 @@ namespace DialogEditor
                 {
                     foreach (Edge edge in changes.edgesToCreate)
                     {
+                        // тут обращаемся к следующему ноду через инпут edge
 
                         DialogNode nextNode = (DialogNode)edge.input.node;
                         DialogChoiseSaveData choiceData = (DialogChoiseSaveData)edge.output.userData;
                         choiceData.NodeID = nextNode.ID;
+                        choiceData.Text = nextNode.DialogName;
+ 
                     }
                 }
 
@@ -356,6 +359,7 @@ namespace DialogEditor
                         Edge edge = (Edge) element;
                         DialogChoiseSaveData  choiceData = (DialogChoiseSaveData) edge.output.userData;
                         choiceData.NodeID = "";
+                        choiceData.Data = null;
                     }
                 }
                 return changes;

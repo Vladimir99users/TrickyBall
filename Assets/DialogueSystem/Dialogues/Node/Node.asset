@@ -10,11 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c96feb5149e4fd6458e18bbb231e4639, type: 3}
-  m_Name: test
+  m_Name: Node
   m_EditorClassIdentifier: 
-  <FileName>k__BackingField: test
+  <FileName>k__BackingField: 
   <DialogueGroups>k__BackingField:
     list: []
-  <UngroupedDialogues>k__BackingField:
-  - {fileID: 11400000, guid: bb6138106274e5a48a308e1c2e39d267, type: 2}
-  - {fileID: 11400000, guid: 41fd250a75b17a24e81665a310795ca2, type: 2}
+  <UngroupedDialogues>k__BackingField: []

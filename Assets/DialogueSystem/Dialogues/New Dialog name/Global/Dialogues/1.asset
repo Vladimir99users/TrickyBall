@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d14a086207eb83843bd0965d1c365484, type: 3}
-  m_Name: lkjh
+  m_Name: 1
   m_EditorClassIdentifier: 
-  <DialogName>k__BackingField: lkjh
+  <DialogName>k__BackingField: 1
   <Text>k__BackingField: Dialog text
   <Choices>k__BackingField:
-  - <Text>k__BackingField: out
-    <NextDialog>k__BackingField: {fileID: 0}
-  <Type>k__BackingField: 3
-  <IsStartingDialogue>k__BackingField: 0
+  - <Text>k__BackingField: 1 in 2
+    <Data>k__BackingField: []
+    <NextDialog>k__BackingField: {fileID: 11400000, guid: dda916d416f735845886875f57f081fe, type: 2}
+  <Type>k__BackingField: 2
+  <IsStartingDialogue>k__BackingField: 1

@@ -275,11 +275,38 @@ namespace DialogEditor.Utilities
             {
                 DialogChoiceData choiceData = new DialogChoiceData()
                 {
-                    Text = nodeChoice.Text
+                    Text = nodeChoice.Text,
+                    Data = CloneNodeItemChoices(nodeChoice.Data)
                 };
+
                 dialogChoices.Add(choiceData);
             }
             return dialogChoices;
+        }
+        // myMethod node item choice
+        private static List<DialogueItemDataSO> CloneNodeItemChoices(List<DialogueItemDataSO> nodeItem)
+        {
+             Debug.Log("3");
+            List<DialogueItemDataSO> items = new List<DialogueItemDataSO>();
+            Debug.Log("1");
+            
+            if(nodeItem is null) return null;
+
+
+            foreach (DialogueItemDataSO item in nodeItem)
+            {
+                 Debug.Log("2");
+                DialogueItemDataSO choiceData = new DialogueItemDataSO()
+                {
+                    NameItem = item.NameItem,
+                    CountItem = item.CountItem,
+                    CountRequare = item.CountRequare,
+                    Type = item.Type
+                };
+                items.Add(choiceData);
+            }
+
+            return items;
         }
 
         
@@ -470,35 +497,32 @@ namespace DialogEditor.Utilities
 
             foreach (DialogChoiseSaveData choice in nodeChoices)
             {
-                DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
+                DialogChoiseSaveData choiceData;
+                if(choice.Data is null)
                 {
-                    Text = choice.Text,
-                    NodeID = choice.NodeID,
-                    Data = choice.Data
-                };
+                    choiceData = new DialogChoiseSaveData()
+                    {
+                        Text = choice.Text,
+                        NodeID = choice.NodeID,
+                        //Data = CloneNodeItemChoices(choice.Data)
+                    };
+                } else 
+                {
+                    choiceData = new DialogChoiseSaveData()
+                    {
+                        Text = choice.Text,
+                        NodeID = choice.NodeID,
+                        Data = choice.Data
+                    };
+                }
+                
                 choices.Add(choiceData);
             }
 
             return choices;
         }
 
-        // myMethod node item choice
-        private static List<DialogueItemSaveData> CloneNodeItemChoices(List<DialogueItemSaveData> nodeItem)
-        {
-            List<DialogueItemSaveData> items = new List<DialogueItemSaveData>();
 
-            foreach (DialogueItemSaveData item in nodeItem)
-            {
-                DialogueItemSaveData choiceData = new DialogueItemSaveData()
-                {
-                    Name = item.Name,
-                    Count = item.Count.ToString()
-                };
-                items.Add(choiceData);
-            }
-
-            return items;
-        }
 
 
         #endregion

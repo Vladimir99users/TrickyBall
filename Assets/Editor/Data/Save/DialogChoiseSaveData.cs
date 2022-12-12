@@ -7,8 +7,10 @@ namespace Dialog.Data.Save
     [System.Serializable]
     public class DialogChoiseSaveData
     {
-        [field: SerializeField] public List<DialogueItemDataSO> Data {get;set;}
-        [field: SerializeField] public string NodeID {get;set;}
+
+        // тут сохраняются данные для превращения в нод для диалога
         [field: SerializeField] public string Text {get;set;}
+        [field: SerializeField] public string NodeID {get;set;}
+        [field: SerializeField] public List<DialogueItemDataSO> Data {get;set;}
     }
 }

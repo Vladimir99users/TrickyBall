@@ -64,7 +64,7 @@ namespace DialogEditor.Elements
             Box boxContainer = new Box();
             boxContainer.AddToClassList("Branch_box-container");
 
-            ObjectField objectField = new ObjectField()
+            /*ObjectField objectField = new ObjectField()
             {
                 objectType = typeof(DialogueItemDataSO),
                 allowSceneObjects = false,
@@ -110,7 +110,7 @@ namespace DialogEditor.Elements
            boxContainer.Add(enumField);
 
            mainContainer.Add(boxContainer);
-           RefreshExpandedState();
+           RefreshExpandedState();*/
 
         }
 
