@@ -10,11 +10,11 @@ namespace Dialog.ScriptableObjects
     {
         [field: SerializeField] public string DialogName {get;set;}
         [field: SerializeField] public string Text {get;set;}
-        [field: SerializeField] public List<DialogChoiceData> Choices {get;set;}
+        [field: SerializeField] public List<DialogBranchData> Choices {get;set;}
         [field: SerializeField] public DialogueType Type {get;set;}
         [field: SerializeField] public bool IsStartingDialogue {get;set;}
 
-        public void Initialize(string dialogName,string text,List<DialogChoiceData> choices, DialogueType type, bool isStartingDialogue)
+        public void Initialize(string dialogName,string text,List<DialogBranchData> choices, DialogueType type, bool isStartingDialogue)
         {
             DialogName = dialogName;
             Text = text;
@@ -22,7 +22,6 @@ namespace Dialog.ScriptableObjects
             Type = type;
             IsStartingDialogue = isStartingDialogue;
         }
-
     }
 }
 

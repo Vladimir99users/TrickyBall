@@ -9,8 +9,6 @@ namespace Dialog.Data.Save
     {
 
         // тут сохраняются данные для превращения в нод для диалога
-        [field: SerializeField] public string ChoiceText {get;set;}
-        [field: SerializeField] public string NodeID {get;set;}
-        [field: SerializeField] public List<DialogueItemDataSO> ItemData {get;set;}
+        [field: SerializeField] public string NextNodeID {get;set;}
     }
 }

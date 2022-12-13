@@ -16,22 +16,21 @@ namespace DialogEditor.Elements
 
     public class DialogNode : Node
     {
-     public string ID {get;set;}
+     public string IDcurrentNode {get;set;}
      public string DialogueName {get;set;}
-     public List<DialogChoiseSaveData> Choices {get;set;}
      public DialogueType _typeDialog {get;set;}
      public GroupElements Group {get;set;}
-     protected Color defaultBackgroundColor;
+
      protected DialogGraphView _graphView;
 
      internal virtual void Intialize(string name, DialogGraphView dialogGraphView, Vector2 position)
      {
-          ID = Guid.NewGuid().ToString();
+          IDcurrentNode = Guid.NewGuid().ToString();
           DialogueName = name;
-          Choices = new List<DialogChoiseSaveData>();
+
 
           _graphView = dialogGraphView;
-          defaultBackgroundColor = new Color(29f / 255f,29f / 255f,30f / 255f);
+
           _typeDialog  = DialogueType.None;
           SetPosition(new Rect(position,Vector2.zero));
           mainContainer.AddToClassList("dialog-node_main-container");
@@ -139,9 +138,11 @@ namespace DialogEditor.Elements
      {
            mainContainer.style.backgroundColor = color;
      }
+
+     //TODO - доделать смену стиля.
      public void ResetStyle()
      {
-           mainContainer.style.backgroundColor = defaultBackgroundColor;
+           Debug.Log("ResetStyle");
      }
      #endregion
     }

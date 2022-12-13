@@ -20,10 +20,13 @@ namespace DialogEditor.Utilities
         private static string _graphFileName;
         private static string _containerFolderPath;
         private static List<GroupElements> _groups;
-        private static List<DialogNode> _nodes;
+       // private static List<DialogNode> _nodes;
+        private static List<BranchNode> _branchNode;
+        private static List<MultipleChoiseNode> _dialogueMultipleNode;
 
         private static Dictionary<string, DialogGroupSO> _createdDialogueGroups;
         private static Dictionary<string, DialogSO> _createdDialogues;
+        private static Dictionary<string, DialogBranchSO> _createdBranch;
 
 
         private static Dictionary<string,GroupElements> _loadedGroups;
@@ -37,10 +40,13 @@ namespace DialogEditor.Utilities
             _containerFolderPath = $"Assets/DialogueSystem/Dialogues/{_graphFileName}";
         
             _groups = new List<GroupElements>();
-            _nodes = new List<DialogNode>();
+           // _nodes = new List<DialogNode>();
+            _branchNode = new List<BranchNode>();
+            _dialogueMultipleNode = new List<MultipleChoiseNode>();
 
             _createdDialogueGroups = new Dictionary<string, DialogGroupSO>();
             _createdDialogues = new Dictionary<string, DialogSO>();
+            _createdBranch = new Dictionary<string, DialogBranchSO>();
 
             _loadedGroups = new Dictionary<string, GroupElements>();
             _loadedNodes = new Dictionary<string, DialogNode>();
@@ -62,9 +68,14 @@ namespace DialogEditor.Utilities
             Type grouptype = typeof(GroupElements);
             _graphView.graphElements.ForEach(graphElement =>
             {
-                if(graphElement is DialogNode node)
+                if(graphElement is MultipleChoiseNode node)
                 {
-                    _nodes.Add(node);
+                    _dialogueMultipleNode.Add(node);
+                    return;
+                }
+                if(graphElement is BranchNode branch)
+                {
+                    _branchNode.Add(branch);
                     return;
                 }
 
@@ -116,23 +127,19 @@ namespace DialogEditor.Utilities
            }
         }
 
-        private static void LoadNodes(List<DialogNodeSaveData> nodes)
+        private static void LoadNodes(List<BaseNodeSaveData> nodes)
         {
-           foreach (DialogNodeSaveData nodeData in nodes)
+           foreach (BaseNodeSaveData nodeData in nodes)
            {
 
-                List<DialogChoiseSaveData> choices = CloneNodeChoices(nodeData.Choices);
-                MultipleChoiseNode node = (MultipleChoiseNode)_graphView.CreateNode(nodeData.Titel,nodeData.Type, nodeData.position,false);
+                DialogNode node = (DialogNode)_graphView.CreateNode(nodeData.Titel,nodeData.Type, nodeData.position,false);
 
-                node.ID = nodeData.ID;
-                node.Choices = choices;
-                node.Text = nodeData.Text;
-
+                node.IDcurrentNode = nodeData.IDGuidBaseNode;
                 node.Draw();
 
                 _graphView.AddElement(node);
 
-                _loadedNodes.Add(node.ID,node);
+                _loadedNodes.Add(node.IDcurrentNode,node);
                 if(string.IsNullOrEmpty(nodeData.GroupID))
                 {
                     continue;
@@ -153,12 +160,12 @@ namespace DialogEditor.Utilities
                 {
                     DialogChoiseSaveData choiceData = (DialogChoiseSaveData)choicePort.userData;
 
-                    if(string.IsNullOrEmpty(choiceData.NodeID))
+                    if(string.IsNullOrEmpty(choiceData.NextNodeID))
                     {
                         continue;
                     }
 
-                    DialogNode nextNode = _loadedNodes[choiceData.NodeID];
+                    DialogNode nextNode = _loadedNodes[choiceData.NextNodeID];
 
                     Port nextNodeInputPort = (Port)nextNode.inputContainer.Children().First();
 
@@ -201,25 +208,25 @@ namespace DialogEditor.Utilities
         {
             SerializableDictionary<string, List<string>> groupedNodeNames = new SerializableDictionary<string, List<string>>();
             List<string> ungroupedNodeNames = new List<string>();
-            foreach (var node in _nodes)
-            {
-                switch(node._typeDialog)
-                {
-                    case DialogueType.MultipleChoise:
-                    {
-                        SaveNodeToGraph((MultipleChoiseNode)node,graphData);
-                        SaveNodeToScriptableObject((MultipleChoiseNode)node,dialogContainerSO);
-                        break;
-                    }
-                    case DialogueType.Condition:
-                    {
-                        SaveNodeConditionToGraph((ConditionNode)node,graphData);
-                        SaveNodeToScriptableObject((ConditionNode)node,dialogContainerSO);
-                        break;
-                    }
-                }
-                
 
+            foreach (var node in _dialogueMultipleNode)
+            {
+                SaveNodeToGraph((MultipleChoiseNode)node,graphData);
+                SaveNodeToScriptableObject((MultipleChoiseNode)node,dialogContainerSO);
+                if(node.Group != null)
+                {
+                    groupedNodeNames.AddItem(node.Group.title, node.DialogueName);
+                    continue;
+                }
+
+                ungroupedNodeNames.Add(node.DialogueName);
+                break;
+            }
+
+            foreach (var node in _branchNode)
+            {
+                SaveNodeBrachToGraph((BranchNode)node,graphData);
+                SaveNodeBrachToScriptableObject((BranchNode)node,dialogContainerSO);
                 if(node.Group != null)
                 {
                     groupedNodeNames.AddItem(node.Group.title, node.DialogueName);
@@ -228,7 +235,10 @@ namespace DialogEditor.Utilities
                 }
 
                 ungroupedNodeNames.Add(node.DialogueName);
+                break;
+
             }
+
 
             UpdateDialoguesChoicesConnections();
 
@@ -239,11 +249,11 @@ namespace DialogEditor.Utilities
 
         private static void SaveNodeToGraph(MultipleChoiseNode node, DialogGraphSaveDataSO graphData)
         {
-            List<DialogChoiseSaveData> choices = CloneNodeChoices(node.Choices);
+            List<DialogBranchData> choices = CloneNodeChoices(node.Choices);
 
-            DialogNodeSaveData nodeData = new DialogNodeSaveData()
+            DialogueNodeSaveData nodeData = new DialogueNodeSaveData()
             {
-                ID = node.ID,
+                IDGuidBaseNode = node.IDcurrentNode,
                 Titel = node.DialogueName,
                 Choices = choices,
                 Text = node.Text,
@@ -254,46 +264,6 @@ namespace DialogEditor.Utilities
 
             graphData.Nodes.Add(nodeData);
         }
-        private static void SaveNodeConditionToGraph(ConditionNode node, DialogGraphSaveDataSO graphData)
-        {
-            List<DialogChoiseSaveData> choices = CloneNodeChoices(node.Choices);
-
-            DialogNodeSaveData nodeData = new DialogNodeSaveData()
-            {
-                ID = node.ID,
-                Titel = node.DialogueName,
-                Choices = choices,
-                GroupID = node.Group?.ID,
-                Type = node._typeDialog,
-                position = node.GetPosition().position
-            };
-
-            graphData.Nodes.Add(nodeData);
-        }
-
-        
-        private static List<DialogChoiseSaveData> CloneNodeChoices(List<DialogChoiseSaveData> nodeChoices)
-        {
-            List<DialogChoiseSaveData> choices = new List<DialogChoiseSaveData>();
-
-            foreach (DialogChoiseSaveData choice in nodeChoices)
-            {
-                DialogChoiseSaveData choiceData  = new DialogChoiseSaveData()
-                {
-                    ChoiceText = choice.ChoiceText,
-                    NodeID = choice.NodeID,
-                    //Data = CloneNodeItemChoices(choice.Data)
-                };
-                
-                
-                choices.Add(choiceData);
-            }
-
-            return choices;
-        }
-
-
-
         private static void SaveNodeToScriptableObject(MultipleChoiseNode node, DialogContainerSO dialogContainerSO)
         {
             DialogSO dialogue;
@@ -316,47 +286,79 @@ namespace DialogEditor.Utilities
                 node._typeDialog,
                 node.IsStartingNode()
             );
-            _createdDialogues.Add(node.ID, dialogue);
+            _createdDialogues.Add(node.IDcurrentNode, dialogue);
             SaveAssets(dialogue);
         }
-
-        private static void SaveNodeToScriptableObject(ConditionNode node, DialogContainerSO dialogContainerSO)
+        private static void SaveNodeBrachToGraph(BranchNode node, DialogGraphSaveDataSO graphData)
         {
-            DialogSO dialogue;
+            //TODO CLODE ALL Items
+            List<DialogueItemDataSO> items = new List<DialogueItemDataSO>();
 
-            if(node.Group != null)
+            BranchNodeSaveData branchData = new BranchNodeSaveData()
             {
-                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Groups/{node.Group.title}/Dialogues", node.DialogueName);
-                dialogContainerSO.DialogueGroups.AddItem(_createdDialogueGroups[node.Group.ID], dialogue);
+                IDGuidBaseNode = node.IDcurrentNode,
+                Titel = node.DialogueName,
+                NextIDNode = node.TargetNodeID,
+                ItemData = items,
+                GroupID = node.Group?.ID,
+                Type = node._typeDialog,
+                position = node.GetPosition().position
+            };
+
+            graphData.Nodes.Add(branchData);
+        }
+
+        private static void SaveNodeBrachToScriptableObject(BranchNode node, DialogContainerSO dialogContainerSO)
+        {
+            DialogBranchSO branch;
+             if(node.Group != null)
+            {
+                branch = CreateAsset<DialogBranchSO>($"{_containerFolderPath}/Groups/{node.Group.title}/Dialogues", node.DialogueName);
+                dialogContainerSO.DialogueBrancGroups.AddItem(_createdDialogueGroups[node.Group.ID], branch);
             } else 
             {
-                dialogue = CreateAsset<DialogSO>($"{_containerFolderPath}/Global/Dialogues", node.DialogueName);
+                branch = CreateAsset<DialogBranchSO>($"{_containerFolderPath}/Global/Dialogues", node.DialogueName);
                 
-                dialogContainerSO.UngroupedDialogues.Add(dialogue);
+                dialogContainerSO.UngroupedBranchDialogues.Add(branch);
             }
 
-            dialogue.Initialize(
+            branch.Initialize(
                 node.DialogueName,
-                node.title = null,
-                ConvertNodeChoicesToDialogChoices(node.Choices),
+                node.TargetNodeID,
+                node.Data,
                 node._typeDialog,
-                node.IsStartingNode()
+                false
             );
-            _createdDialogues.Add(node.ID, dialogue);
-            SaveAssets(dialogue);
+
+            _createdBranch.Add(node.IDcurrentNode,branch);
+            SaveAssets(branch);
         }
 
-        private static List<DialogChoiceData> ConvertNodeChoicesToDialogChoices(List<DialogChoiseSaveData> nodeChoices)
+        private static List<DialogBranchData> CloneNodeChoices(List<DialogBranchData> nodeChoices)
         {
-            List<DialogChoiceData> dialogChoices = new List<DialogChoiceData>();
+            List<DialogBranchData> choices = new List<DialogBranchData>();
 
-            foreach (DialogChoiseSaveData nodeChoice in nodeChoices)
+            foreach (DialogBranchData choice in nodeChoices)
             {
-                DialogChoiceData choiceData = new DialogChoiceData()
+                DialogBranchData choiceData  = new DialogBranchData()
                 {
-                    Text = nodeChoice.ChoiceText,
-                    Data = CloneNodeItemChoices(nodeChoice.ItemData)
+                    NextNodeID = choice.NextNodeID,
                 };
+                
+                
+                choices.Add(choiceData);
+            }
+
+            return choices;
+        }
+
+        private static List<DialogBranchData> ConvertNodeChoicesToDialogChoices(List<DialogBranchData> nodeChoices)
+        {
+            List<DialogBranchData> dialogChoices = new List<DialogBranchData>();
+
+            foreach (DialogBranchData nodeChoice in nodeChoices)
+            {
+                DialogBranchData choiceData = new DialogBranchData();
 
                 dialogChoices.Add(choiceData);
             }
@@ -534,23 +536,45 @@ namespace DialogEditor.Utilities
         
         private static void UpdateDialoguesChoicesConnections()
         {
-            foreach(DialogNode node in _nodes)
+           
+            foreach(var node in _dialogueMultipleNode)
             {
-                DialogSO dialogue = _createdDialogues[node.ID];
-
-                for(int choiceIndex = 0; choiceIndex < node.Choices.Count;++choiceIndex)
+                if(node is MultipleChoiseNode)
                 {
-                    DialogChoiseSaveData nodeChoice = node.Choices[choiceIndex];
+                    DialogSO dialogue = _createdDialogues[node.IDcurrentNode];
 
-                    if(string.IsNullOrEmpty(nodeChoice.NodeID))
+                    MultipleChoiseNode MultiNode = (MultipleChoiseNode) node;
+                    for(int choiceIndex = 0; choiceIndex < MultiNode.Choices.Count;++choiceIndex)
                     {
-                        continue;
-                    }
+                        DialogBranchData nodeChoice = MultiNode.Choices[choiceIndex];
 
-                    dialogue.Choices[choiceIndex].NextDialog = _createdDialogues[nodeChoice.NodeID];
+                        if(string.IsNullOrEmpty(nodeChoice.NextNodeID))
+                        {
+                            continue;
+                        }
+                        // ERRORS не может найти ключ в дикшеонари
+                        dialogue.Choices[choiceIndex].NextDialog =_createdBranch[nodeChoice.NextNodeID];
                     
-                    SaveAssets(dialogue);
+                        SaveAssets(dialogue);
+                    }
                 }
+            }
+
+            foreach(var node in _branchNode)
+            {
+
+                DialogBranchSO dialogue = _createdBranch[node.IDcurrentNode];
+                BranchNode branchNode = (BranchNode) node;
+                BranchNodeSaveData nodeChoice = new BranchNodeSaveData()
+                {
+                    NextIDNode = branchNode.NextNode.NextIDNode
+                };
+                if(string.IsNullOrEmpty(nodeChoice.NextIDNode))
+                {
+                    continue;
+                }
+                dialogue.Next.NextDialog =  _createdDialogues[nodeChoice.NextIDNode];
+                SaveAssets(dialogue);
             }
         }
 

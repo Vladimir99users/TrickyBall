@@ -2,25 +2,30 @@ using UnityEditor.Experimental.GraphView;
 using DialogEditor.Enumerations;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
+
 
 namespace DialogEditor.Elements
 {
     using Utilities;
     using Dialog.Data.Save;
+    using Dialog.Data;
+
     public class MultipleChoiseNode : DialogNode
     {
        public string Text {get;set;}
+       public List<DialogBranchData> Choices {get;set;}
        internal override void Intialize(string nodeName, DialogGraphView dialogGraphView, Vector2 position)
        {
             base.Intialize(nodeName,dialogGraphView, position);
-            
+            Choices = new List<DialogBranchData>();
+
+
+
             _typeDialog = DialogueType.MultipleChoise;
             Text = "Dialog text";
 
-            DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
-            {
-                ChoiceText = "New Choice"
-            };
+            DialogBranchData choiceData = new DialogBranchData();
             Choices.Add(choiceData);
        }
 
@@ -55,10 +60,7 @@ namespace DialogEditor.Elements
         {
             Button addChoiceButton = DialogElementUtility.CreateButton("Add choice", () =>
             {
-                DialogChoiseSaveData choiceData = new DialogChoiseSaveData()
-                {
-                    ChoiceText = "Empty in multiplay node"
-                };
+                DialogBranchData choiceData = new DialogBranchData();
 
                 Choices.Add(choiceData);
                 
@@ -77,7 +79,7 @@ namespace DialogEditor.Elements
                 Port choicePort = this.CreatPort();
                 
                 choicePort.userData = userData;
-                DialogChoiseSaveData choiceData = (DialogChoiseSaveData) userData;
+                DialogBranchData choiceData = (DialogBranchData) userData;
                 
                 Button deleteChoiceButton = DialogElementUtility.CreateButton("Delete", () =>
                 {

@@ -131,7 +131,7 @@ namespace DialogEditor
         {
             this.AddManipulator(CreateNodeContextMenu("Multi Node", DialogueType.MultipleChoise));
             this.AddManipulator(CreateGroupContextMenu());
-            this.AddManipulator(CreateConditionContextMenu("Choice", DialogueType.Condition));
+            this.AddManipulator(CreateConditionContextMenu("Choice", DialogueType.Branch));
         }
 
         private IManipulator CreateGroupContextMenu()
@@ -324,9 +324,7 @@ namespace DialogEditor
 
                         DialogNode nextNode = (DialogNode)edge.input.node;
                         DialogChoiseSaveData choiceData = (DialogChoiseSaveData)edge.output.userData;
-                        choiceData.NodeID = nextNode.ID;
-                        choiceData.ChoiceText = nextNode.DialogueName;
-                        //Debug.Log("id next node = " + nextNode.ID + " ID choice = " + choiceData.NodeID + " text choice = " + choiceData.ChoiceText + " nextNode text choice = " + nextNode.DialogName);
+                        choiceData.NextNodeID = nextNode.IDcurrentNode;
                     }
                 }
 
@@ -343,9 +341,7 @@ namespace DialogEditor
 
                         Edge edge = (Edge) element;
                         DialogChoiseSaveData  choiceData = (DialogChoiseSaveData) edge.output.userData;
-                        choiceData.NodeID = "";
-                        choiceData.ChoiceText = "<|>";
-                        choiceData.ItemData = null;
+                        choiceData.NextNodeID = "Node next node ID";
                     }
                 }
                 return changes;

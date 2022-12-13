@@ -8,7 +8,7 @@ namespace Dialog.Data.Save
     {
         [field: SerializeField]public string FileName {get;set;}
         [field: SerializeField]public List<DialogGroupSaveData> Groups {get;set;}
-        [field: SerializeField]public List<DialogNodeSaveData> Nodes {get;set;}
+        [field: SerializeField]public List<BaseNodeSaveData> Nodes {get;set;}
         [field: SerializeField]public List<string> OldGroupNames {get;set;}
         [field: SerializeField]public List<string> OldUngroupedNodeNames {get;set;}
         [field: SerializeField]public SerializableDictionary<string, List<string>> OldGroupedNodeNames {get;set;}
@@ -19,7 +19,7 @@ namespace Dialog.Data.Save
             FileName = fileName;
             
             Groups = new List<DialogGroupSaveData>();
-            Nodes = new List<DialogNodeSaveData>();
+            Nodes = new List<BaseNodeSaveData>();
 
 
         }
